@@ -5,14 +5,113 @@
     <div class="col-md-8">
         <div class="card p-4">
             <h2 class="text-center mb-4">Apply for: {{ job.title }}</h2>
+
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form.as_p }}
                 <button type="submit" class="btn btn-success w-100">Submit Application</button>
             </form>
-            <br>
-            <a href="{% url 'candidate_dashboard' %}" class="btn btn-secondary w-100">Go back to dashboard</a>
+
+            <a href="{% url 'candidate_dashboard' %}" class="btn btn-secondary w-100 mt-3 text-center">
+                Go back to dashboard
+            </a>
         </div>
     </div>
 </div>
+
+<!-- Custom CSS -->
+<style>
+/* General body styling */
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f9fbfd;
+    margin: 0;
+    padding: 0;
+    
+}
+
+/* Center the card */
+.row.justify-content-center {
+    margin-top: 50px;
+}
+
+/* Card styling */
+.card {
+    border: 1px solid black;
+    border-radius: 12px;
+    width: 500px;
+    height: 400px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background: #fff;
+    padding: 30px;
+    margin-left: 150px;
+}
+
+/* Form heading */
+.card h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Form fields */
+.card form p {
+    margin-bottom: 15px;
+    color: #333 ;
+}
+
+.card form input,
+.card form select,
+.card form textarea {
+    width: 100%;
+    color: #333 ;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.card form input:focus,
+.card form select:focus,
+.card form textarea:focus {
+    border-color: #006eff;
+    box-shadow: 0 0 5px rgba(40, 78, 167, 0.3);
+}
+
+/* Submit button */
+.card form button[type="submit"] {
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 8px;
+    background-color: #006eff;
+    border-color: #006aff;
+    padding: 10px;
+    transition: all 0.3s ease;
+}
+
+.card form button[type="submit"]:hover {
+    background-color: #0151ba;
+    border-color: #014ebb;
+}
+
+/* Go back button */
+.card a.btn-secondary {
+    display: block;
+    margin-top: 15px;
+    font-weight: 500;
+    text-align: center;
+    border-radius: 8px;
+    padding: 10px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #676767;
+    transition: all 0.3s ease;
+}
+
+.card a.btn-secondary:hover {
+    background-color: #434343;
+    color: #fff;
+}
+</style>
 {% endblock %}

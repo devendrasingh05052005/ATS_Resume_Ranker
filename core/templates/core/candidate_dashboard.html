@@ -1,83 +1,386 @@
 {% extends 'core/base.html' %}
-
+{% load static %}
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h2>Welcome, {{ request.user.username }}!</h2>
-        <p>Jobs dhoondhiye aur apply kijiye.</p>
-        
-        <form action="{% url 'logout' %}" method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Logout</button>
-        </form>
-        <hr>
-    </div>
-</div>
+<style>
 
-<div class="row">
-    <div class="col-md-6">
-        <h3>My Applications</h3>
-        {% if my_applications %}
-            <ul class="list-group">
-                {% for application in my_applications %}
-                <li class="list-group-item">
-                    <strong>{{ application.job.title }}</strong>
-                    <br>
-                    Status: <span class="badge bg-secondary">{{ application.status }}</span>
-                </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Aapne abhi tak koi job ke liye apply nahi kiya hai.</p>
-        {% endif %}
-    </div>
+.dashboard-container {
+    display: flex;
+    font-family: 'Inter', sans-serif;
+    background: #f9fbfd;
+    min-height: 100vh;
+}
 
-    <div class="col-md-6">
-        <h3>External Job Search</h3>
-        <form method="get" action="{% url 'candidate_dashboard' %}">
-            <div class="input-group mb-3">
-                <input type="text" name="query" class="form-control" placeholder="Job title, keywords..." value="{{ query }}">
-                <input type="text" name="location" class="form-control" placeholder="Location" value="{{ location }}">
-                <button type="submit" class="btn btn-outline-secondary">Search</button>
-            </div>
-        </form>
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, #5babfc 0%, #2d96ff 100%);
+    border-right: 1px solid #e5e7eb;
+    padding: 25px 20px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.585);
+}
 
-        {% if external_jobs %}
-        <div class="mt-4">
-            <h3>Search Results:</h3>
-            <ul class="list-group">
-                {% for job in external_jobs %}
-                <li class="list-group-item">
-                    <strong>{{ job.title }}</strong>
-                    <br>
-                    <small>{{ job.description|truncatechars:100 }}</small>
-                    <br>
-                    <a href="{{ job.external_url }}" target="_blank" class="btn btn-sm btn-primary mt-2">Apply on Company Website</a>
-                </li>
-                {% endfor %}
-            </ul>
+.sidebar .profile {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.sidebar .avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    
+    margin: 0 auto 12px;
+    box-shadow: 0 4px 8px rgba(37,99,235,0.3);
+    border: 3px solid #000000;
+}
+
+.sidebar h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.sidebar .target-role {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* Navigation */
+.sidebar nav ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.sidebar nav ul a {
+    text-decoration: none;
+}
+
+.sidebar nav ul li {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: #2e2e2e;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.sidebar nav ul li.active,
+.sidebar nav ul li:hover {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 30px;
+    border-color: #303030;
+    scroll-behavior: smooth;
+}
+
+/* Header */
+.top-bar {
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #005eff;
+    justify-content: space-between;
+}
+
+.top-bar h2 {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.top-bar .btn-logout {
+    padding: 6px 14px;
+    border: none;
+    background: #e60017;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* Sections */
+.applications, .job-search, .internal-jobs {
+    margin: 30px 0;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 60, 255, 0.785);
+}
+
+.applications ul, .internal-jobs ul, .results ul {
+    list-style: none;
+    
+    padding: 0;
+}
+
+.applications li, .internal-jobs li, .results li {
+    color: #333;
+    margin-bottom: 15px;
+    
+}
+.internal-jobs li p, .results li p{
+    font-size: 15px;
+}
+
+.badge {
+    background: #0073d8;
+    color: rgb(255, 255, 255);
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.search-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-form input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.search-form button {
+    padding: 8px 14px;
+    border: none;
+    background: #007bff;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-apply, .btn-apply-now {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+}
+.rk{
+    display: flex;
+    gap: 20px;
+}
+.btn-apply-now {
+    background: #007bff;
+}
+
+/* Chatbot */
+.chat-container {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dedede;
+    
+    margin-bottom: 1rem;
+}
+.user-message {
+    text-align: right;
+    color: #0d6efd;
+}
+.ai-message {
+    text-align: left;
+    color: #6c757d;
+}
+.appl{
+    margin: 30px 0;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 60, 255, 0.785);
+    width: 490px;
+}
+.appl ul{
+    list-style:decimal;
+    margin-left: 10px;
+    padding: 0;
+}
+.appl li{
+    color: #1c1c1c;
+    margin-bottom: 15px;
+}
+</style>
+
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="profile">
+            <div class="avatar" style="background:url('{% static 'images/avtar.png' %}') no-repeat center center/cover;"></div>
+            <br>
+            <h3>{{ request.user.username|upper }}</h3>
+            <p class="target-role" style="color: #303030;">Set your target role</p>
         </div>
-        {% endif %}
-    </div>
-</div>
+        <nav>
+            <ul>
+                <a href="#dashboard"><li class="active">Dashboard</li></a>
+                <a href="#applications"><li>My Applications</li></a>
+                <a href="#internal-jobs"><li>Internal Jobs</li></a>
+                <a href="#job-search"><li>Search Job</li></a>
+                <a href="{% url 'choose_template' %}"><li>Generate Resume</li></a>
+            </ul>
+        </nav>
+    </aside>
 
-<div class="row mt-4">
-    <div class="col-12">
-        <h3>Internal Jobs</h3>
-        <ul class="list-group">
-            {% for job in internal_jobs %}
-            <li class="list-group-item">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">{{ job.title }}</h5>
-                    <small>{{ job.recruiter.username }} ne post kiya</small>
+    <!-- Main Content -->
+    <main class="main-content" id="dashboard">
+        <header class="top-bar">
+            <h2 style="font-size: 30px;">Hello {{ request.user.username|capfirst }}!</h2>
+            <p style="color: #303030;">What's your goal today?</p>
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
+        </header>
+
+        <!-- My Applications -->
+        
+            <div class="rk">
+                <div class="appl" id="applications">
+                    <h3 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">My Applications</h3>
+                    <br>
+            {% if my_applications %}
+                        <ul>
+                    {% for application in my_applications %}
+                            <li>
+                        <strong>{{ application.job.title }}</strong>
+                        <span class="badge">{{ application.status }}</span>
+                            </li>
+                    {% endfor %}
+                        </ul>
+            {% else %}
+                        <p>Aapne abhi tak koi job ke liye apply nahi kiya hai.</p>
+            {% endif %}
                 </div>
-                <p class="mb-1">{{ job.description|truncatechars:150 }}</p>
-                <a href="{% url 'apply_for_job' job.id %}" class="btn btn-sm btn-success mt-2">Apply Now</a>
-            </li>
-            {% empty %}
-            <p>Abhi koi internal job available nahi hai.</p>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
+                <div class="appl">
+                <h3 style="font-weight: 700; 
+           font-size: 30px; 
+           background: linear-gradient(90deg, #4f46e5, #00d4fa); 
+           -webkit-background-clip: text; 
+           -webkit-text-fill-color: transparent; 
+           display: inline-block;">AI Career Assistant</h3>
+                <div class="chat-container" id="chat-box"></div>
+                <form id="chat-form" method="post" class="mt-3">
+                {% csrf_token %}
+                    <div class="input-group">
+                    <input type="text" id="chat-input" name="message" class="form-control" placeholder="Ask me anything...">
+                    <button type="submit" class="btn btn-primary" style="background: linear-gradient(90deg, #4f46e5, #06b6d4);">Send</button>
+                    </div>
+                </form>
+                </div>
+            </div>
+        
+
+        <!-- External Job Search -->
+        <section class="job-search" id="job-search">
+            <h3 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">External Job Search</h3>
+            
+            <form method="get" action="{% url 'candidate_dashboard' %}" class="search-form">
+                <input type="text" name="query" placeholder="Job title, keywords..." value="{{ query }}">
+                <input type="text" name="location" placeholder="Location" value="{{ location }}">
+                <button type="submit">Search</button>
+            </form>
+
+            {% if external_jobs %}
+            <div class="results">
+                <h3 style="color: #000000;">Search Results:</h3>
+                <br>
+                <ul>
+                    {% for job in external_jobs %}
+                    <li>
+                        <strong style="font-size: 19px;">{{ job.title }}</strong>
+                        <p>{{ job.description|truncatechars:100 }}</p>
+                        <a href="{{ job.external_url }}" target="_blank" class="btn-apply">Apply on Company Website</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Internal Jobs -->
+        <section class="internal-jobs" id="internal-jobs">
+            <h3 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">Internal Jobs</h3>
+            <br>
+            <ul>
+                {% for job in internal_jobs %}
+                <li>
+                    <div class="job-header">
+                        <strong style="font-size: 20px;">{{ job.title }}</strong><br>
+                        <small style="color: #000000;font-size: 17px;">Posted by {{ job.recruiter.username }}</small>
+                    </div>
+                    <p>{{ job.description|truncatechars:150 }}</p>
+                    <a href="{% url 'apply_for_job' job.id %}" class="btn-apply-now">Apply Now</a>
+                </li>
+                {% empty %}
+                <p>No internal jobs are available right now.</p>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <!-- AI Career Assistant -->
+<script>
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatBox = document.getElementById('chat-box');
+
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const userMessage = chatInput.value;
+        if (!userMessage.trim()) return;
+
+        // Add user message
+        chatBox.innerHTML += `<div class="p-2 user-message"><strong>You:</strong> ${userMessage}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        chatInput.value = '';
+
+        // Show typing message
+        const typingHtml = `<div class="p-2 ai-message"><em>AI is typing...</em></div>`;
+        chatBox.innerHTML += typingHtml;
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Send to backend
+        fetch('/chatbot/response/', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: new URLSearchParams({
+                'message': userMessage
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            chatBox.lastElementChild.remove();
+            chatBox.innerHTML += `<div class="p-2 ai-message"><strong>AI:</strong> ${data.response}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            chatBox.lastElementChild.remove();
+            chatBox.innerHTML += `<div class="p-2 ai-message text-danger"><strong>AI:</strong> Sorry, an error occurred.</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    });
+</script>
+
+
+
 {% endblock %}

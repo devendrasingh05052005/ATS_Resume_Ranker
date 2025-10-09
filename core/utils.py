@@ -16,7 +16,7 @@ def clean_text(text):
     filtered_words = [word for word in words if word not in stop_words]
     return ' '.join(filtered_words)
 
-# Resume Reading Function (Nayi)
+# Resume Reading Function 
 def read_resume_file(file):
     file_extension = file.name.split('.')[-1].lower()
     text = ""
@@ -40,13 +40,11 @@ def read_resume_file(file):
             return None
             
     else:
-        # Agar koi aur format ho, to message dein
         print(f"Unsupported file format: {file_extension}")
         return None
         
     return text
 
-# Ranking Function (purani wali, bas isko update kiya hai)
 def get_resume_ranking(resume_file, job_description):
     resume_text = read_resume_file(resume_file)
     

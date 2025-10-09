@@ -1,47 +1,169 @@
 {% extends 'core/base.html' %}
-
+{% load static %}
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h2>Welcome, {{ request.user.username }}!</h2>
-        <p>Aap yahan se jobs post kar sakte hain aur candidates ko manage kar sakte hain.</p>
-        
-        <form action="{% url 'logout' %}" method="post" class="d-inline-block">
+<div class="dashboard-container">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Recruiter Dashboard</h2>
+            <p class="text-muted">Post jobs and manage candidates directly from here.</p>
+        </div>
+        <form action="{% url 'logout' %}" method="post">
             {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Logout</button>
+            <a href="{% url 'post_job' %}" class="btn btn-primary rounded-pill px-3">+ Add Job </a>
+            
         </form>
-        <hr>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="row g-3 mb-4">
+    <!-- Total Applications -->
+    <div class="col-md-4">
+        <div class="card shadow-sm p-4 rounded-3 d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h6 class="text-muted">Total Applications</h6>
+                <h1 class="fw-bold">{{ total_applications|default:"0" }}</h1>
+            </div>
+            <div style="background:url('{% static 'images/totalaplicant.jpg' %}') no-repeat center center/cover;
+                        height:100px; width:80px; border-radius:12px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Shortlisted Candidates -->
+    <div class="col-md-4">
+        <div class="card shadow-sm p-4 rounded-3 d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h6 class="text-muted">Shortlisted Candidates</h6>
+                <h1 class="fw-bold text-success">{{ shortlisted|default:"2" }}</h1>
+            </div>
+            <div style="background:url('{% static 'images/shortlisted.png' %}') no-repeat center center/cover;
+                        height:100px; width:80px; border-radius:12px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejected Candidates -->
+    <div class="col-md-4">
+        <div class="card shadow-sm p-4 rounded-3 d-flex flex-row justify-content-between align-items-center">
+            <div>
+                <h6 class="text-muted">Rejected Candidates</h6>
+                <h1 class="fw-bold text-danger">{{ rejected|default:"3" }}</h1>
+            </div>
+            <div style="background:url('{% static 'images/rejected.png' %}') no-repeat center center/cover;
+                        height:100px; width:80px; border-radius:12px;">
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-12">
-        <h3>Overall Analytics</h3>
-        <p>Total Applications: <strong>...</strong></p>
-        <p>Shortlisted Candidates: <strong>...</strong></p>
-        <p>Rejected Candidates: <strong>...</strong></p>
-        <hr>
-    </div>
-</div>
+    <!-- Posted Jobs -->
+    <div class="card shadow-sm p-4 rounded-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="fw-semibold">Your Jobs</h3>
+            
+        </div>
 
-<div class="row">
-    <div class="col-12">
-        <h3>Aapki Post Ki Hui Jobs</h3>
-        <a href="{% url 'post_job' %}" class="btn btn-primary mb-3">Nayi Job Post Karein</a>
-        <ul class="list-group">
+        <ul class="list-group list-group-flush ">
             {% for job in jobs %}
-            <li class="list-group-item">
-                <div class="d-flex w-100 justify-content-between">
+            <li class="list-group-item py-3">
+                <div class="d-flex w-100 justify-content-between align-items-center">
                     <h5 class="mb-1">{{ job.title }}</h5>
-                    <small>...</small>
+                    <small class="text-muted">Posted on {{ job.created_at|date:"M d, Y" }}</small>
                 </div>
-                <p class="mb-1">{{ job.description|truncatechars:150 }}</p>
-                <a href="{% url 'recruiter_job_applications' job.id %}" class="btn btn-sm btn-success mt-2">View Applications</a>
+                <p class="mb-1 text-muted">{{ job.description|truncatechars:150 }}</p>
+                <a href="{% url 'recruiter_job_applications' job.id %}" class="btn btn-sm btn-outline-success mt-2">View Applications</a>
             </li>
             {% empty %}
-            <p>Abhi tak koi job post nahi ki hai.</p>
+            <p class="text-muted">No jobs have been posted yet.</p>
             {% endfor %}
         </ul>
     </div>
 </div>
+
+<!-- Custom CSS -->
+<style>
+.dashboard-container {
+    max-width: 1100px;
+    gap: 20px;
+    
+    margin: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Analytics Cards */
+.row.g-3.mb-4 {
+    display: flex;
+    flex-wrap: wrap;
+    border-color: black;
+    gap: 20px;
+}
+
+.col-md-4 {
+    flex: 1;
+    
+    background: #fff;
+    border-radius: 12px;
+    
+    box-shadow: 0 2px 5px rgba(0, 60, 255, 0.785);
+    
+}
+
+
+/* Cards */
+    .card {
+        background: #fff;
+        border-radius: 16px;
+        
+        box-shadow: 10px 4px 12px rgb(0, 0, 0);
+        
+        
+        
+        transition: all 0.3s ease;
+        border: 1px solid #b7b7b7;
+    }
+
+    .card:hover {
+        background: #e8e8e8;
+        transform: translateY(-6px);
+        box-shadow: 0 10px 24px rgba(0, 123, 255, 0.15);
+        border-color: #007bff;
+    }
+/* Card headings */
+.card h3 {
+    font-size: 1.8rem;
+}
+
+/* Buttons */
+.btn {
+    font-weight: 500;
+    border-radius: 12px;
+}
+
+/* List group items */
+.list-group-item {
+    
+    
+    border: 1px solid black;
+    padding: 15px 0;
+}
+
+/* Small heading tweaks */
+h6.text-muted {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .row.g-3.mb-4 {
+        
+        flex-direction: column;
+    }
+}
+</style>
+
 {% endblock %}

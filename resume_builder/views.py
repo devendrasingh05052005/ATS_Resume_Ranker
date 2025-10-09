@@ -8,7 +8,11 @@ import os
 import json
 import re
 
-genai.configure(api_key="AIzaSyC3ngxiYZ67yopEwodhDAo37NICOP-yHZo") 
+'''-------------------------------------------------------------------------------------'''
+
+genai.configure(api_key="AIzaSyC3ngxiYZ67yopEwodhDAo37NICOP-yHZo")
+
+'''-------------------------------------------------------------------------------------'''
 
 def get_ai_suggestions_from_gemini(job_title):
     model = genai.GenerativeModel('gemini-1.5-flash')
@@ -24,30 +28,47 @@ def get_ai_suggestions_from_gemini(job_title):
     except Exception as e:
         print(f"Gemini API call failed: {e}")
         return []
+    
+'''-------------------------------------------------------------------------------------'''
 
 def choose_template(request):
     templates = [
-        {'id': 1, 'name': 'Classic Professional', 'image': 'template1.png'},
-        {'id': 2, 'name': 'Modern Minimalist', 'image': 'template2.png'},
-        {'id': 3, 'name': 'Creative & Bold', 'image': 'template3.png'},
-        {'id': 4, 'name': 'Technical Focus', 'image': 'template4.png'},
-        {'id': 5, 'name': 'Simple Layout', 'image': 'template5.png'}
+        {'id': 1, 'name': 'Classic Professional', 'image': 'resume1.png'},
+        {'id': 2, 'name': 'Modern Minimalist', 'image': 'resume2.png'},
+        {'id': 3, 'name': 'Creative & Bold', 'image': 'resume3.png'},
+        {'id': 4, 'name': 'Technical Focus', 'image': 'resume4.png'},
+        {'id': 5, 'name': 'Simple Layout', 'image': 'resume5.png'}
     ]
     return render(request, 'resume_builder/choose_template.html', {'templates': templates})
+
+'''-------------------------------------------------------------------------------------'''
 
 def resume_builder(request, template_id):
     form = ResumeBuilderForm(request.POST or None)
     ai_suggestions = []
+    form_data = request.session.get('form_data', {})
+
 
     if request.method == 'POST':
+        form = ResumeBuilderForm(request.POST)
         if form.is_valid():
-            job_title = form.cleaned_data['target_job_title']
-            if job_title:
-                ai_suggestions = get_ai_suggestions_from_gemini(job_title)
-            
-            request.session['form_data'] = form.cleaned_data
-            request.session['ai_suggestions'] = ai_suggestions
-            request.session['template_id'] = template_id
+            if 'download_resume' in request.POST:
+                request.session['form_data'] = form.cleaned_data
+                request.session['template_id'] = template_id
+                return download_resume(request)
+
+            if 'get_suggestions' in request.POST:
+                job_title = form.cleaned_data['target_job_title']
+                if job_title:
+                    ai_suggestions = get_ai_suggestions_from_gemini(job_title)
+
+                request.session['form_data'] = form.cleaned_data
+                request.session['ai_suggestions'] = ai_suggestions
+                request.session['template_id'] = template_id
+
+        else:
+            form = ResumeBuilderForm(initial=request.session.get('form_data'))
+            ai_suggestions = request.session.get('ai_suggestions', [])
     
     context = {
         'form': form,
@@ -55,6 +76,8 @@ def resume_builder(request, template_id):
         'template_id': template_id
     }
     return render(request, 'resume_builder/resume_builder.html', context)
+
+'''-------------------------------------------------------------------------------------'''
 
 def download_resume(request):
     form_data = request.session.get('form_data', {})
@@ -73,9 +96,10 @@ def download_resume(request):
     }
 
     template_name = f"resume_builder/resume_template_{template_id}.html"
-
     rendered_html = render_to_string(template_name, context)
 
     response = HttpResponse(rendered_html, content_type='text/html')
-    response['Content-Disposition'] = 'attachment; filename="resume.html"'
+    response['Content-Disposition'] = 'attachment; filename=\"resume.html\"'
     return response
+
+'''-------------------------------------------------------------------------------------'''

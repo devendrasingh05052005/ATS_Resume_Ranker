@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: ats-project
+    env: python
+    pythonVersion: 3.11
+    rootDir: ATS_Project
+    buildCommand: |
+      pip install -r ../requirements-render.txt
+      python -c "import nltk; nltk.download('stopwords')"
+      python manage.py migrate --noinput
+      python manage.py collectstatic --noinput
+    startCommand: gunicorn ats_project.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: .onrender.com,localhost,127.0.0.1
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false

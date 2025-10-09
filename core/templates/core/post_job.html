@@ -1,10 +1,103 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
+<style>
+    body {
+        background: #f5f9ff; /* soft blue background */
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .card {
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        padding: 30px;
+        color: #000;
+    }
+    .card:hover{
+        background: #eae9e9;
+    }
+    
+    h2 {
+        font-weight: bold;
+        color: #007bff;
+        margin-bottom: 25px;
+    }
+
+    form p, label {
+        margin-bottom: 10px;
+        color: #000;
+        font-weight: 500;
+        font-size: 16px;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #444444;  /* ✅ thick black border */
+        border-radius: 8px;
+        font-size: 15px;
+        color: #000;
+        background: #fff;
+        transition: border 0.3s, box-shadow 0.3s;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border: 1px solid #414141; /* ✅ highlight with thick blue border */
+        box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+    }
+    .gradient-btn {
+  background: linear-gradient(135deg, #fe39f1, #37afff);
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gradient-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(77, 166, 255, 0.3);
+}
+
+.gradient-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(77, 166, 255, 0.3);
+}
+
+    .btn-primary {
+        background: #007bff;
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-weight: bold;
+        font-size: 16px;
+        transition: background 0.3s;
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        background: #0056b3;
+    }
+</style>
+
 <div class="row justify-content-center mt-5">
     <div class="col-md-8">
-        <div class="card p-4">
-            <h2 class="text-center mb-4">Post a New Job</h2>
+        <div class="card">
+            <h2 class="text-center">Post a New Job</h2>
+
+            <h5 class="text-center mt-3">Generate Job Description with AI</h5>
+            <form method="post" class="mt-2">
+                {% csrf_token %}
+                <div class="input-group mb-3">
+                    <input type="text" name="title" class="form-control" placeholder="Enter Job Title (e.g., 'Data Scientist')" required>
+                    <button type="submit" name="generate_jd" class="gradient-btn">Generate JD</button>
+                </div>
+            </form>
             <form method="post">
                 {% csrf_token %}
                 {{ form.as_p }}

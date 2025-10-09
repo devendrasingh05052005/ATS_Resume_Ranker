@@ -1,37 +1,220 @@
 {% extends 'core/base.html' %}
-
+{% load static %}
 {% block content %}
-<div class="row text-center mt-5">
-    <div class="col-12">
-        <h1 class="display-4">Welcome to AI-Powered ATS</h1>
-        <p class="lead">Kripya apni भूमिका chunein:</p>
-        <hr>
-    </div>
-</div>
+<style>
+    
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card p-3 mb-3">
-            <h3>Candidate</h3>
-            <p>Jobs search karne aur apply karne ke liye.</p>
-            <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
-            <a href="{% url 'candidate_signup' %}" class="btn btn-secondary mt-2">Sign Up</a>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+
+    background: linear-gradient(180deg, #0044ff 0%, #ffffff 35%, #ffffff 100%);
+    background-attachment: fixed;
+        font-family: 'Poppins', sans-serif;
+        
+        
+        color: #333;
+    }
+
+    .main-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        
+        min-height: 100vh;
+        padding: 40px 20px;
+    }
+
+    header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #002f7b; /* Dark charcoal color */
+        margin-bottom: 8px;
+    }
+    .head h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #0064c9; /* Dark charcoal color */
+        margin-bottom: 8px;
+        max-width: 400px;
+    }
+
+    header p {
+        font-size: 1.1rem;
+        color: #7f8c8d; /* Muted grey */
+        max-width: 500px;
+        margin-left: 100px;
+    }
+    .head p {
+        font-size: 1.1rem;
+        color: #7f8c8d; /* Muted grey */
+        max-width: 300px;
+        
+    }
+
+    .card-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 25px;
+        max-width: 1100px;
+        width: 100%;
+    }
+
+    .card {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        padding: 35px 30px;
+        text-align: center;
+        flex: 1;
+        min-width: 280px;
+        max-width: 320px;
+        border: 1px solid #e0e0e0;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-icon {
+        font-size: 3rem; /* Icon size */
+        margin-bottom: 20px;
+        color: #0066ff; /* Professional blue */
+    }
+
+    .card h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 15px;
+    }
+
+    .card p {
+        font-size: 1rem;
+        color: #7f8c8d;
+        line-height: 1.6;
+        flex-grow: 1;
+        margin-bottom: 30px;
+    }
+
+    .btn {
+        display: block;
+        padding: 12px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+        box-sizing: border-box; /* Ensures padding doesn't affect width */
+    }
+    
+    .btn-primary {
+        background-color: #0066ff;
+        color: #ffffff;
+        border: 2px solid #0066ff;
+    }
+
+    .btn-primary:hover {
+        background-color: #0066ff;
+        border-color: #0066ff;
+    }
+
+    .btn-secondary {
+        background-color: transparent;
+        color: #0066ff;
+        border: 2px solid #0066ff;
+        margin-top: 10px;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #0066ff;
+        color: #ffffff;
+    }
+    .log{
+        display: flex;
+        gap: 50px;
+    }
+    .login-right{
+        border-radius: 10px;
+        margin-left: 50px;
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+<div class="main-container">
+    <header>
+        <h1>Welcome to the AI-powered ATS System</h1>
+        <p>Streamline your job search, manage applications effortlessly, and access smart insights to boost your career growth.</p>
+        
+    </header>
+    
+    <br>
+    <div class="log">
+        <div class="login-right" style=" background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0,0,0,0.4)),url('{% static 'images/homeimg.png' %}') no-repeat center center/cover;height: 250px;width: 600px;">
+            
+            <h1 style="color: #ffffff;margin-left: 20px;margin-top: 10px;">Professional </h1>
+            <h2 style="color: #ffffff;margin-left: 20px;">Career Platform</h2>
+            
+            
+        </div>
+        <div class="head">
+            <h1>Start Your Career Journey Here</h1>
+            <p>Unlock opportunities, find the best talent, and build the perfect resume with our AI-powered tools.</p>
         </div>
     </div>
-    
-    <div class="col-md-4">
-        <div class="card p-3 mb-3">
-            <h3>Recruiter</h3>
-            <p>Candidates screen karne aur jobs post karne ke liye.</p>
-            <a href="{% url 'login' %}" class="btn btn-success">Login</a>
+    <br>
+    <br>
+    <br>
+    <div class="card-container">
+        <div class="card" style="background:url('{% static 'images/bgtemplate1.jpeg' %}') no-repeat center center/cover;">
+            <div>
+                <div class="card-icon"><i class="fas fa-user-tie"></i></div>
+                <h3>For Job Seekers</h3>
+                <p>Discover roles tailored to your skills and ambition. Let's find your next great opportunity together.</p>
+            </div>
+            <div>
+                <a href="{% url 'candidate_login' %}" class="btn btn-primary">Login</a>
+                <a href="{% url 'candidate_signup' %}" class="btn btn-secondary">Sign Up Now</a>
+            </div>
         </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card p-3 mb-3">
-            <h3>Free Resume Builder</h3>
-            <p>Apna resume banane aur AI-based suggestions lene ke liye.</p>
-            <a href="{% url 'choose_template' %}" class="btn btn-info">Build Resume Now</a>
+
+        <div class="card" style="background:url('{% static 'images/bgtemplate1.jpeg' %}') no-repeat center center/cover;">
+            <div>
+                <div class="card-icon"><i class="fas fa-building"></i></div>
+                <h3>For Recruiters</h3>
+                <p>Access a pool of qualified candidates and streamline your hiring process with intelligent screening.</p>
+            </div>
+            <div>
+                <a href="{% url 'recruiter_login' %}" class="btn btn-primary">Recruiter Login</a>
+            </div>
+        </div>
+
+        <div class="card" style="background:url('{% static 'images/bgtemplate1.jpeg' %}') no-repeat center center/cover;">
+            <div>
+                <div class="card-icon"><i class="fas fa-file-alt"></i></div>
+                <h3>Craft Your Future</h3>
+                <p>Build a standout, professional resume in minutes with AI suggestions and beautiful templates.</p>
+            </div>
+            <div>
+                <a href="{% url 'choose_template' %}" class="btn btn-primary">Generate Resume</a>
+            </div>
         </div>
     </div>
 </div>

@@ -21,7 +21,6 @@ class JobField(models.Model):
 class Job(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
-    # Ek Recruiter ne job post ki hai, isliye ForeignKey use kiya hai
     recruiter = models.ForeignKey(
         'CustomUser',
         on_delete=models.CASCADE,
@@ -36,9 +35,7 @@ class Job(models.Model):
     
 
 
-# core/models.py
 
-# ... Job model ke baad
 
 class Application(models.Model):
     candidate = models.ForeignKey(
@@ -56,7 +53,7 @@ class Application(models.Model):
         ('Rejected', 'Rejected'),
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Applied')
-    ranking_score = models.FloatField(default=0.0) # AI/ML se aane wala score
+    ranking_score = models.FloatField(default=0.0) 
 
     def __str__(self):
         return f"Application by {self.candidate.username} for {self.job.title}"

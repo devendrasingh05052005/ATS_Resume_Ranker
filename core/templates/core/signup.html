@@ -1,16 +1,154 @@
+
 {% extends 'core/base.html' %}
+{% load widget_tweaks %}
+{% load static %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6">
-        <div class="card p-4">
-            <h2 class="text-center mb-4">Candidate Sign Up</h2>
+<style>
+    body {
+        background: #ffffff;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .login-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    .login-card {
+        display: flex;
+        width: 900px;
+        height: fit-content;
+        background: #fff;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Left side (form) */
+    .login-left {
+        flex: 1;
+        background: #111;
+        color: #fff;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: left;
+    }
+
+    
+    
+    .login-left h2 {
+        font-weight: bold;
+        color: rgb(13, 114, 255);
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    
+    
+
+    .login-left input {
+        background: transparent !important;
+        border: none !important;
+        border-bottom: 1px solid #555 !important;
+        padding: 10px 5px !important;
+        width: 100%;
+        color: #fff !important;
+    }
+
+    .login-left input:focus {
+        outline: none;
+        border-bottom: 1px solid #0051ff !important;
+    }
+
+    .btn{
+        background: #2441ff;
+        border: none;
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: bold;
+        color: #fff;
+        transition: 0.3s;
+    }
+
+    .btn:hover {
+        background: #0033ff;
+    }
+
+    /* Right side (image + text) */
+    .login-right {
+        flex: 1;
+        background-color: #373737;       
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        
+       
+    }
+
+    .login-right h4 {
+        font-size: 28px;
+        font-weight: bold;
+        
+        
+    }
+    .login-right h1 {
+        font-weight: bold;
+        color: white;
+        text-align: left;
+        
+    }
+
+    .login-right p {
+        font-size: 16px;
+        
+    }
+    .but {
+        background: #ffffff;
+        border: none;
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: bold;
+        color: #0073ff;
+        transition: 0.3s;
+    }
+    .but:hover {
+        background: #c0c0c0;
+    }
+
+
+</style>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-right" style="background:url('{% static 'images/loginimg2.png' %}') no-repeat center center/cover;
+            height:125vh; width:100%;">
+            
+            <h1>Welcome to AI-Powered</h1>
+            <h4 style="color: #ffffff;"> ATS Portal</h4>
+            <p>Login to access your account</p>
+            
+        </div>
+        <!-- Left Side (your content as is) -->
+        
+        <div class="login-left">
+            <h2>Candidate Sign Up</h2><br>
             <form method="post">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+                <button type="submit" class="btn">Sign Up</button>
             </form>
+            <br>
+            <a href="{% url 'login' %}"><button class="but">Login</button></a>
         </div>
+
+        <!-- Right Side -->
+        
     </div>
 </div>
 {% endblock %}

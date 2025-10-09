@@ -4,36 +4,141 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Free Resume Builder</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #272727;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: #ebebeb;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #0055ff;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #373737;
+            margin-bottom: 25px;
+        }
+
+        form {
+            margin-bottom: 25px;
+        }
+
+        form p {
+            margin-bottom: 15px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            background: transparent !important;
+            border: none !important;
+            border-bottom: 1px solid #000000 !important;
+            
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 6px;
+        }
+
+        button {
+            display: inline-block;
+            background: #626262;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #2a2a2a;
+        }
+
+        h3 {
+            margin-top: 30px;
+            color: #292929;
+        }
+
+        ul {
+            list-style: disc;
+            padding-left: 25px;
+        }
+
+        ul li {
+            margin-bottom: 8px;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .link-buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .link-buttons a button {
+            background: #0055ff;
+            margin: 5px;
+        }
+
+        .link-buttons a button:hover {
+            background: #000dff;
+        }
+    </style>
 </head>
 <body>
-    <h2>Free Resume Builder - Template {{ template_id }}</h2>
-    <p>Apni jaankari bharein aur AI-based suggestions payein.</p>
-    
-    <form action="{% url 'resume_builder' template_id %}" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
+    <div class="container">
+        <h2>Free Resume Builder - Template {{ template_id }}</h2>
+        <p class="subtitle">Fill in your details and get AI-powered resume suggestions.</p>
         
-        <button type="submit">Get Suggestions</button>
-    </form>
-    
-    {% if ai_suggestions %}
-        <h3>AI-Powered Suggestions for Work Experience:</h3>
-        <ul>
-            {% for suggestion in ai_suggestions %}
-                <li>{{ suggestion }}</li>
-            {% endfor %}
-        </ul>
-        <p><i>Copy these bullet points to your resume.</i></p>
+        <form action="{% url 'resume_builder' template_id %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            
+            <button type="submit" name="get_suggestions">Get Suggestions</button>
+            <button type="submit" name="download_resume">Download Final Resume</button>
+
+        </form>
+        
+        {% if ai_suggestions %}
+            <h3>AI-Suggested Work Experience:</h3>
+            <ul>
+                {% for suggestion in ai_suggestions %}
+                    <li>{{ suggestion }}</li>
+                {% endfor %}
+            </ul>
+            <p><i>Copy these bullet points into your resume.</i></p>
+
+            <hr>
+            <a href="{% url 'download_resume' %}">
+                <button>Download Final Resume</button>
+            </a>
+        {% endif %}
 
         <hr>
-        <a href="{% url 'download_resume' %}">
-            <button>Download Final Resume</button>
-        </a>
-    {% endif %}
-
-    <hr>
-    <a href="{% url 'choose_template' %}">Go back to Templates</a>
-    <br>
-    <a href="{% url 'home' %}">Go back to Home</a>
+        <div class="link-buttons">
+            <a href="{% url 'choose_template' %}"><button>Back to Templates</button></a>
+            <a href="{% url 'home' %}"><button>Back to Home</button></a>
+        </div>
+    </div>
 </body>
 </html>

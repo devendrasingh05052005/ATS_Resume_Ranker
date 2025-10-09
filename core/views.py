@@ -1,17 +1,23 @@
 # core/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import CandidateSignUpForm
-from django.contrib.auth.decorators import login_required
-from .forms import CandidateSignUpForm, JobPostingForm, ApplicationForm # <-- Yahan ApplicationForm add karein
+from django.http import JsonResponse
+from django.contrib.auth import authenticate,login as auth_login
+from django.contrib.auth.decorators import login_required 
+from .forms import CandidateSignUpForm, JobPostingForm, ApplicationForm , LoginForm
 from .models import Job, Application, JobField
-from django.contrib import messages
-from .api import fetch_adzuna_jobs # Naya import
+from .api import fetch_adzuna_jobs 
 from django.db.models import Count
-from .utils import get_resume_ranking # Naya import
+from .utils import get_resume_ranking 
 import fitz # PyMuPDF
-import requests
-from django.db.models import Count, Q # <-- Yeh naya import hai
+import requests, os
+from django.contrib import messages
+import google.generativeai as genai
+'''-----------------------------------------------------------------------------------------------'''
 
+genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
+
+'''-----------------------------------------------------------------------------------------------'''
 
 def candidate_signup(request):
     if request.method == 'POST':
@@ -20,12 +26,33 @@ def candidate_signup(request):
             user = form.save(commit=False)
             user.is_candidate = True
             user.save()
-            return redirect('login') # <-- यहां 'accounts:login' को 'login' से बदल दिया गया है
+            return redirect('login') 
     else:
         form = CandidateSignUpForm()
     return render(request, 'core/signup.html', {'form': form})
 
+'''-----------------------------------------------------------------------------------------------'''
 
+def chatbot_response(request):
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        user_message = request.POST.get('message')
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        
+        prompt = f"""You are an AI career assistant. Your goal is to provide helpful and concise advice to job seekers.
+        A candidate has a question for you: "{user_message}".
+        Please provide a professional and direct answer.
+        """
+        try:
+            response = model.generate_content(prompt)
+            ai_response = response.text
+            return JsonResponse({'response': ai_response})
+        except Exception as e:
+            print(f"Gemini API call failed: {e}")
+            return JsonResponse({'error': 'Sorry, I am unable to respond at the moment.'}, status=500)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+'''-----------------------------------------------------------------------------------------------'''
 
 @login_required
 def dashboard(request):
@@ -34,9 +61,9 @@ def dashboard(request):
     elif request.user.is_recruiter:
         return redirect('recruiter_dashboard')
     else:
-        # Agar koi role na ho, to home page par bhej dein
         return redirect('home')
-    
+
+'''-----------------------------------------------------------------------------------------------'''
 
 @login_required
 def candidate_dashboard(request):
@@ -51,7 +78,6 @@ def candidate_dashboard(request):
 
     if query:
         try:
-            # External jobs fetch karein
             external_jobs_data = fetch_adzuna_jobs(query, location)
             for job_data in external_jobs_data:
                 external_jobs.append({
@@ -60,9 +86,8 @@ def candidate_dashboard(request):
                     'external_url': job_data['redirect_url']
                 })
         except requests.exceptions.RequestException as e:
-            # Agar API call fail ho to page par error dikhayein
             messages.error(request, f"API call failed. Please check your internet connection or API credentials.")
-            print(f"API call failed with error: {e}") # Isse console mein bhi error dikhega
+            print(f"API call failed with error: {e}") 
     
     my_applications = Application.objects.filter(candidate=request.user)
 
@@ -74,7 +99,18 @@ def candidate_dashboard(request):
         'location': location,
     }
     return render(request, 'core/candidate_dashboard.html', context)
+def generate_job_description(job_title):
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    prompt = f"Write a detailed and professional job description for the role of a {job_title}. The description should include responsibilities, qualifications, and company information. The length should be around 250-300 words. Return only the job description content."
+    
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        print(f"Gemini API call failed: {e}")
+        return "Could not generate job description. Please try again."
 
+'''-----------------------------------------------------------------------------------------------'''
 
 @login_required
 def recruiter_dashboard(request):
@@ -83,34 +119,47 @@ def recruiter_dashboard(request):
     
     recruiter_jobs = Job.objects.filter(recruiter=request.user)
 
+    total_applications = Application.objects.filter(job__in=recruiter_jobs).count()
+
+    shortlisted = Application.objects.filter(job__in=recruiter_jobs, status='shortlisted').count()
+    rejected = Application.objects.filter(job__in=recruiter_jobs, status='rejected').count()
+
     context = {
         'jobs': recruiter_jobs,
+        'total_applications': total_applications,
+        'shortlisted': shortlisted,
+        'rejected': rejected,
     }
     return render(request, 'core/recruiter_dashboard.html', context)
 
+'''-----------------------------------------------------------------------------------------------'''
 
 @login_required
 def post_job(request):
-    if not request.user.is_recruiter:
-        return redirect('dashboard') # Agar user recruiter nahi hai, toh wapas bhej dein
-
+    generated_jd = None
     if request.method == 'POST':
-        form = JobPostingForm(request.POST)
-        if form.is_valid():
-            job = form.save(commit=False)
-            job.recruiter = request.user
-            job.save()
-            return redirect('recruiter_dashboard')
+        if 'generate_jd' in request.POST:
+            job_title = request.POST.get('title', '')
+            if job_title:
+                generated_jd = generate_job_description(job_title)
+                form = JobPostingForm(initial={'title': job_title, 'description': generated_jd})
+                messages.success(request, "Job Description generated successfully!")
+            else:
+                form = JobPostingForm(request.POST)
+                messages.error(request, "Please enter a job title first.")
+        else:
+            form = JobPostingForm(request.POST)
+            if form.is_valid():
+                job = form.save(commit=False)
+                job.recruiter = request.user
+                job.save()
+                return redirect('recruiter_dashboard')
     else:
         form = JobPostingForm()
 
-    return render(request, 'core/post_job.html', {'form': form})
+    return render(request, 'core/post_job.html', {'form': form, 'generated_jd': generated_jd})
 
-
-
-
-
-
+'''-----------------------------------------------------------------------------------------------'''
 
 @login_required
 def apply_for_job(request, job_id):
@@ -129,7 +178,6 @@ def apply_for_job(request, job_id):
             resume_file = request.FILES['resume']
             job_description = job.description
             
-            # Ranking score calculate karein
             ranking_score = get_resume_ranking(resume_file, job_description)
             
             if ranking_score is None:
@@ -152,48 +200,83 @@ def apply_for_job(request, job_id):
 def home(request):
     return render(request, 'core/home.html')
 
+'''-----------------------------------------------------------------------------------------------'''
 
 @login_required
 def recruiter_job_applications(request, job_id):
     if not request.user.is_recruiter:
         return redirect('dashboard')
     
-    # Check karein ki job recruiter ne hi post ki hai
     job = get_object_or_404(Job, id=job_id, recruiter=request.user)
     
-    # Saari applications ko ranking score ke hisaab se sort karein
     applications = Application.objects.filter(job=job).order_by('-ranking_score')
     
     return render(request, 'core/recruiter_job_applications.html', {'job': job, 'applications': applications})
 
-
+'''-----------------------------------------------------------------------------------------------'''
 
 @login_required
 def shortlist_application(request, app_id):
     if not request.user.is_recruiter:
         return redirect('dashboard')
     
-    # Check karein ki application ussi recruiter ki job ke liye hai
     application = get_object_or_404(Application, id=app_id, job__recruiter=request.user)
     
-    # Application ka status 'Shortlisted' mein update karein
     application.status = 'Shortlisted'
     application.save()
     
     messages.success(request, f"{application.candidate.username} has been shortlisted.")
     return redirect('recruiter_job_applications', job_id=application.job.id)
 
+'''-----------------------------------------------------------------------------------------------'''
+
+def candidate_login(request):
+    if request.method == 'POST':
+        form = LoginForm(request=request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            if user.is_candidate and not user.is_recruiter:
+                auth_login(request, user)
+                return redirect('candidate_dashboard')
+            else:
+                messages.error(request, "Invalid login credentials for a candidate.")
+        else:
+            messages.error(request, "Invalid username or password.")
+    else:
+        form = LoginForm()
+    return render(request, 'registration/login.html', {'form': form})
+
+'''-----------------------------------------------------------------------------------------------'''
+
+def recruiter_login(request):
+    if request.method == 'POST':
+        form = LoginForm(request=request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            if user.is_recruiter and not user.is_candidate:
+                auth_login(request, user)
+                return redirect('recruiter_dashboard')
+            else:
+                messages.error(request, "Invalid login credentials for a recruiter.")
+        else:
+            messages.error(request, "Invalid username or password.")
+    else:
+        form = LoginForm()
+    return render(request, 'registration/login.html', {'form': form})
+
+'''-----------------------------------------------------------------------------------------------'''
+
 @login_required
 def reject_application(request, app_id):
     if not request.user.is_recruiter:
         return redirect('dashboard')
     
-    # Check karein ki application ussi recruiter ki job ke liye hai
     application = get_object_or_404(Application, id=app_id, job__recruiter=request.user)
     
-    # Application ka status 'Rejected' mein update karein
     application.status = 'Rejected'
     application.save()
     
     messages.success(request, f"{application.candidate.username} has been rejected.")
     return redirect('recruiter_job_applications', job_id=application.job.id)
+
+'''-----------------------------------------------------------------------------------------------'''

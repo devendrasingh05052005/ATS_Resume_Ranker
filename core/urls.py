@@ -13,4 +13,7 @@ urlpatterns = [
     path('recruiter/jobs/<int:job_id>/applications/', views.recruiter_job_applications, name='recruiter_job_applications'), 
     path('recruiter/applications/<int:app_id>/shortlist/', views.shortlist_application, name='shortlist_application'),
     path('recruiter/applications/<int:app_id>/reject/', views.reject_application, name='reject_application'),
+    path('candidate/login/', views.candidate_login, name='candidate_login'),
+    path('recruiter/login/', views.recruiter_login, name='recruiter_login'),
+    path('chatbot/response/', views.chatbot_response, name='chatbot_response'),
 ]
