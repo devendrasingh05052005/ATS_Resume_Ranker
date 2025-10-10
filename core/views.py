@@ -13,7 +13,7 @@ import requests, os
 from django.contrib import messages
 import google.generativeai as genai
 '''-----------------------------------------------------------------------------------------------'''
-genai.configure(api_key="AIzaSyC3ngxiYZ67yopEwodhDAo37NICOP-yHZo")
+genai.configure(api_key="AIzaSyDpzODbpZx-aSYLCuenmO3x-hhJeD27uhg")
 '''-----------------------------------------------------------------------------------------------'''
 
 def candidate_signup(request):

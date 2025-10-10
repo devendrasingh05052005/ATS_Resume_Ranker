@@ -8,7 +8,7 @@ def fetch_adzuna_jobs(query, location):
     """
     # Aapke Adzuna credentials
     app_id = "e4e5c6a9"
-    app_key = "2d962b93e5a2c5b70b9b79e9936636a2"
+    app_key = "cafef0355a622589ee75a5caa3247f24"
 
     if not app_id or not app_key:
         print("Error: Adzuna API credentials not found.")
