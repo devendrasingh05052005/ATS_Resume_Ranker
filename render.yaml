@@ -4,12 +4,8 @@ services:
     env: python
     pythonVersion: 3.11
     rootDir: .
-    buildCommand: |
-      pip install -r requirements-render.txt && \
-      python -c "import nltk; nltk.download('stopwords')" && \
-      python manage.py migrate --noinput && \
-      python manage.py collectstatic --noinput
-    startCommand: gunicorn ats_project.wsgi:application --bind 0.0.0.0:$PORT
+    buildCommand: bash render-build.sh
+    startCommand: bash render-start.sh
     envVars:
       - key: SECRET_KEY
         generateValue: true
