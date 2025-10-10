@@ -33,7 +33,7 @@ def candidate_signup(request):
 def chatbot_response(request):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         user_message = request.POST.get('message')
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash-latest')
         
         prompt = f"""You are an AI career assistant. Your goal is to provide helpful and concise advice to job seekers.
         A candidate has a question for you: "{user_message}".
@@ -97,7 +97,7 @@ def candidate_dashboard(request):
     }
     return render(request, 'core/candidate_dashboard.html', context)
 def generate_job_description(job_title):
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-1.5-flash-latest')
     prompt = f"Write a detailed and professional job description for the role of a {job_title}. The description should include responsibilities, qualifications, and company information. The length should be around 250-300 words. Return only the job description content."
     
     try:

@@ -216,24 +216,23 @@
     margin-bottom: 15px;
 }
 </style>
-
 <div class="dashboard-container">
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="profile">
-            <div class="avatar" style="background:url('{% static 'images/avtar.png' %}') no-repeat center center/cover;"></div>
+            <img class="avatar" src="{% static 'images/icon.jpg' %}" alt="User avatar">
             <br>
             <h3>{{ request.user.username|upper }}</h3>
             <p class="target-role" style="color: #303030;">Set your target role</p>
         </div>
         <nav>
-            <ul>
-                <a href="#dashboard"><li class="active">Dashboard</li></a>
-                <a href="#applications"><li>My Applications</li></a>
-                <a href="#internal-jobs"><li>Internal Jobs</li></a>
-                <a href="#job-search"><li>Search Job</li></a>
-                <a href="{% url 'choose_template' %}"><li>Generate Resume</li></a>
-            </ul>
+                <ul>
+                    <li class="active"><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#applications">My Applications</a></li>
+                    <li><a href="#internal-jobs">Internal Jobs</a></li>
+                    <li><a href="#job-search">Search Job</a></li>
+                    <li><a href="{% url 'choose_template' %}">Generate Resume</a></li>
+                </ul>
         </nav>
     </aside>
 
@@ -271,7 +270,9 @@
                 <h3 style="font-weight: 700; 
            font-size: 30px; 
            background: linear-gradient(90deg, #4f46e5, #00d4fa); 
+           background-clip: text; 
            -webkit-background-clip: text; 
+           color: transparent; 
            -webkit-text-fill-color: transparent; 
            display: inline-block;">AI Career Assistant</h3>
                 <div class="chat-container" id="chat-box"></div>
