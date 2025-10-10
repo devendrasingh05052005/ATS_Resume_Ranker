@@ -2,7 +2,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import CandidateSignUpForm
 from django.http import JsonResponse
-from django.contrib.auth import authenticate,login as auth_login
 from django.contrib.auth.decorators import login_required 
 from .forms import CandidateSignUpForm, JobPostingForm, ApplicationForm , LoginForm
 from .models import Job, Application, JobField
@@ -14,9 +13,7 @@ import requests, os
 from django.contrib import messages
 import google.generativeai as genai
 '''-----------------------------------------------------------------------------------------------'''
-
-genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
-
+genai.configure(api_key="AIzaSyC3ngxiYZ67yopEwodhDAo37NICOP-yHZo")
 '''-----------------------------------------------------------------------------------------------'''
 
 def candidate_signup(request):

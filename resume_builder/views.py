@@ -5,18 +5,15 @@ from .forms import ResumeBuilderForm
 import google.generativeai as genai
 import os
 import re
-    10 
-    11 '''-------------------------------------------------------------------------------------'''
-    12 
-    13 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
-    14 
-    15 '''-------------------------------------------------------------------------------------'''
+from django.shortcuts import render
 
+genai.configure(api_key="AIzaSyC3ngxiYZ67yopEwodhDAo37NICOP-yHZo")
 
 def get_ai_suggestions_from_gemini(job_title):
     model = genai.GenerativeModel('gemini-1.5-flash')
     prompt = f"""
-    Please generate 5 detailed and professional bullet points for a resume for a {job_title}. 
+    Please generate 5 detailed and professional bullet points for a resume for a {job_title}.
+    Each bullet point should be concise and start with an action verb.
     Please return the result as a simple list, with each bullet point separated by a newline.
     Do not add any headings or extra text, just the bullet points.
     """
@@ -26,8 +23,6 @@ def get_ai_suggestions_from_gemini(job_title):
     except Exception as e:
         print(f"Gemini API call failed: {e}")
         return []
-    
-'''-------------------------------------------------------------------------------------'''
 
 def choose_template(request):
     templates = [
@@ -38,8 +33,6 @@ def choose_template(request):
         {'id': 5, 'name': 'Simple Layout', 'image': 'resume5.png'}
     ]
     return render(request, 'resume_builder/choose_template.html', {'templates': templates})
-
-'''-------------------------------------------------------------------------------------'''
 
 def resume_builder(request, template_id):
     form = ResumeBuilderForm(request.POST or None)
