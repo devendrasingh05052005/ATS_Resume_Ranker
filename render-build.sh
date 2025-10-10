@@ -12,5 +12,4 @@ nltk.download('stopwords', quiet=True)
 print("NLTK stopwords downloaded")
 PY
 
-python manage.py migrate --noinput
 python manage.py collectstatic --noinput
