@@ -3,7 +3,7 @@ set -euo pipefail
 
 echo "Python version:" $(python --version)
 
-pip install --upgrade pip
+pip install --upgrade pip setuptools wheel
 pip install -r requirements-render.txt
 
 python - <<'PY'
