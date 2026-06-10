@@ -6,8 +6,9 @@ import google.generativeai as genai
 import os
 import re
 from django.shortcuts import render
+from django.conf import settings
 
-genai.configure(api_key="AIzaSyC3ngxiYZ67yopEwodhDAo37NICOP-yHZo")
+genai.configure(api_key=settings.GEMINI_API_KEY)
 
 def get_ai_suggestions_from_gemini(job_title):
     model = genai.GenerativeModel('gemini-1.5-flash')

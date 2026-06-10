@@ -1,28 +1,147 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ full_name }} Resume</title>
+    <meta charset="utf-8">
+    <title>{{ full_name }} - Resume</title>
     <style>
-        body { font-family: Georgia, serif; line-height: 1.6; max-width: 800px; margin: auto; padding: 20px; }
-        h1 { border-bottom: 1px dotted #666; padding-bottom: 5px; }
-        h3 { color: #666; }
+        :root {
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --border: #f1f5f9;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #ffffff;
+        }
+
+        /* Print controller banner */
+        .print-banner {
+            background: #1e293b;
+            color: #ffffff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            font-family: sans-serif;
+        }
+
+        .print-banner span {
+            font-size: 0.95rem;
+        }
+
+        .print-btn {
+            background: #475569;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .print-btn:hover {
+            background: #334155;
+        }
+
+        /* Simple layout header */
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            color: #0f172a;
+            letter-spacing: -0.025em;
+        }
+
+        .header .role {
+            font-size: 1.15rem;
+            color: #475569;
+            margin: 0 0 10px 0;
+        }
+
+        .header .meta {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            border-top: 1px solid #e2e8f0;
+            padding-top: 8px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+            margin-bottom: 12px;
+        }
+
+        .content-block {
+            font-size: 0.92rem;
+            white-space: pre-wrap;
+            color: #334155;
+        }
+
+        /* Print media controls */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                padding: 0;
+                margin: 0;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>{{ full_name }}</h1>
-    <p>Email: {{ email }} | Phone: {{ phone_number }}</p>
-    <hr>
-    
-    <h3>Work Experience</h3>
-    <p>{{ work_experience|linebreaksbr }}</p>
-    
-    <h3>Education</h3>
-    <p>{{ education|linebreaksbr }}</p>
-    
-    <h3>Skills</h3>
-    <p>{{ skills|linebreaksbr }}</p>
-    
 
+    <!-- Floating Print Tool -->
+    <div class="print-banner no-print">
+        <span>AI-ATS Resume Suite: Print or Save as PDF</span>
+        <button onclick="window.print()" class="print-btn">Print / Save as PDF</button>
+    </div>
+
+    <!-- Resume Body -->
+    <div class="header">
+        <h1>{{ full_name }}</h1>
+        <div class="role">{{ target_job_title }}</div>
+        <div class="meta">
+            <span>Email: {{ email }}</span> &bull; 
+            <span>Phone: {{ phone_number }}</span>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Experience</div>
+        <div class="content-block">{{ work_experience }}</div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Education</div>
+        <div class="content-block">{{ education }}</div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Skills</div>
+        <div class="content-block">{{ skills }}</div>
+    </div>
 
 </body>
-</html>               
+</html>

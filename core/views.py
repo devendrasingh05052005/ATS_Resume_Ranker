@@ -12,8 +12,11 @@ import fitz # PyMuPDF
 import requests, os
 from django.contrib import messages
 import google.generativeai as genai
+from django.conf import settings
+from django.contrib.auth import login as auth_login
 '''-----------------------------------------------------------------------------------------------'''
-genai.configure(api_key="AIzaSyDpzODbpZx-aSYLCuenmO3x-hhJeD27uhg")
+# API Key is configured dynamically from settings
+genai.configure(api_key=settings.GEMINI_API_KEY)
 '''-----------------------------------------------------------------------------------------------'''
 
 def candidate_signup(request):
@@ -23,7 +26,7 @@ def candidate_signup(request):
             user = form.save(commit=False)
             user.is_candidate = True
             user.save()
-            return redirect('login') 
+            return redirect('candidate_login') 
     else:
         form = CandidateSignUpForm()
     return render(request, 'core/signup.html', {'form': form})
@@ -185,6 +188,63 @@ def apply_for_job(request, job_id):
             application.candidate = request.user
             application.job = job
             application.ranking_score = ranking_score
+            
+            # Generate detailed ATS breakdown using Gemini
+            from .utils import read_resume_file
+            import json
+            
+            try:
+                resume_file.seek(0)
+            except Exception:
+                pass
+                
+            resume_text = read_resume_file(resume_file)
+            ats_feedback_json = None
+            
+            if resume_text:
+                model = genai.GenerativeModel('gemini-1.5-flash-latest')
+                prompt = f"""
+                Compare this resume text with the job description.
+                Identify:
+                1. Keywords/skills matched.
+                2. Keywords/skills missing.
+                3. AI Recommendations for improvement.
+                
+                Provide the output strictly in valid JSON format (with no other markdown or enclosing backticks) with keys:
+                "matched_keywords": [list of strings],
+                "missing_keywords": [list of strings],
+                "recommendations": [list of strings]
+                
+                Resume:
+                {resume_text[:4000]}
+                
+                Job Description:
+                {job_description[:4000]}
+                """
+                try:
+                    response = model.generate_content(prompt)
+                    resp_text = response.text.strip()
+                    if resp_text.startswith("```json"):
+                        resp_text = resp_text[7:]
+                    if resp_text.endswith("```"):
+                        resp_text = resp_text[:-3]
+                    resp_text = resp_text.strip()
+                    
+                    # Validate JSON
+                    json_data = json.loads(resp_text)
+                    ats_feedback_json = json.dumps(json_data)
+                except Exception as e:
+                    print(f"Gemini ATS breakdown failed: {e}")
+            
+            if not ats_feedback_json:
+                fallback_data = {
+                    "matched_keywords": ["Skills matching: Review pending"],
+                    "missing_keywords": ["Please compare with description keywords"],
+                    "recommendations": ["Optimize your resume bullet points with relevant action verbs."]
+                }
+                ats_feedback_json = json.dumps(fallback_data)
+                
+            application.ats_feedback = ats_feedback_json
             application.save()
             
             messages.success(request, "Aapka application safal ho gaya hai!")

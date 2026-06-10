@@ -1,387 +1,624 @@
 {% extends 'core/base.html' %}
 {% load static %}
-{% block content %}
+
+{% block extra_css %}
 <style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 30px;
+        align-items: start;
+    }
 
-.dashboard-container {
-    display: flex;
-    font-family: 'Inter', sans-serif;
-    background: #f9fbfd;
-    min-height: 100vh;
-}
+    /* Sidebar profile/navigation */
+    .dashboard-sidebar {
+        background: rgba(30, 41, 59, 0.45);
+        border: 1px solid var(--border-glass);
+        border-radius: 20px;
+        padding: 30px 20px;
+        position: sticky;
+        top: 90px;
+        backdrop-filter: blur(10px);
+    }
 
-/* Sidebar */
-.sidebar {
-    width: 260px;
-    background: linear-gradient(180deg, #5babfc 0%, #2d96ff 100%);
-    border-right: 1px solid #e5e7eb;
-    padding: 25px 20px;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.585);
-}
+    .profile-card {
+        text-align: center;
+        margin-bottom: 25px;
+        border-bottom: 1px solid var(--border-glass);
+        padding-bottom: 20px;
+    }
 
-.sidebar .profile {
-    text-align: center;
-    margin-bottom: 40px;
-}
+    .profile-card .avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.2rem;
+        color: white;
+        margin: 0 auto 15px;
+        box-shadow: 0 8px 20px var(--primary-glow);
+    }
 
-.sidebar .avatar {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    
-    margin: 0 auto 12px;
-    box-shadow: 0 4px 8px rgba(37,99,235,0.3);
-    border: 3px solid #000000;
-}
+    .profile-card h4 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
 
-.sidebar h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: #111827;
-}
+    .profile-card span {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
 
-.sidebar .target-role {
-    font-size: 14px;
-    color: #6b7280;
-}
+    .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
 
-/* Navigation */
-.sidebar nav ul {
-    list-style: none;
-    padding: 0;
-    margin-top: 20px;
-}
+    .sidebar-nav a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: var(--text-muted);
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
 
-.sidebar nav ul a {
-    text-decoration: none;
-}
+    .sidebar-nav a:hover, .sidebar-nav a.active {
+        color: #ffffff;
+        background: rgba(59, 130, 246, 0.15);
+        border-left: 3px solid var(--primary);
+        padding-left: 19px;
+    }
 
-.sidebar nav ul li {
-    padding: 12px 15px;
-    cursor: pointer;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    font-size: 15px;
-    color: #2e2e2e;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
+    /* AI Chatbot Sidebar Widget */
+    .chat-widget {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid var(--border-glass);
+        border-radius: 16px;
+        padding: 15px;
+        margin-top: 25px;
+        display: flex;
+        flex-direction: column;
+        height: 320px;
+    }
 
-.sidebar nav ul li.active,
-.sidebar nav ul li:hover {
-    background: #eff6ff;
-    color: #2563eb;
-}
+    .chat-header {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #ffffff;
+        border-bottom: 1px solid var(--border-glass);
+        padding-bottom: 8px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 
+    .chat-box {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 5px;
+        font-size: 0.85rem;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
 
-/* Main Content */
-.main-content {
-    flex: 1;
-    padding: 30px;
-    border-color: #303030;
-    scroll-behavior: smooth;
-}
+    .chat-bubble {
+        padding: 8px 12px;
+        border-radius: 12px;
+        max-width: 85%;
+        line-height: 1.4;
+    }
 
-/* Header */
-.top-bar {
-    display: flex;
-    align-items: center;
-    border-bottom: 2px solid #005eff;
-    justify-content: space-between;
-}
+    .chat-bubble.user {
+        background: var(--primary);
+        color: #ffffff;
+        align-self: flex-end;
+        border-bottom-right-radius: 2px;
+    }
 
-.top-bar h2 {
-    font-size: 22px;
-    font-weight: bold;
-}
+    .chat-bubble.ai {
+        background: rgba(255,255,255,0.06);
+        color: #cbd5e1;
+        align-self: flex-start;
+        border-bottom-left-radius: 2px;
+        border: 1px solid rgba(255,255,255,0.04);
+    }
 
-.top-bar .btn-logout {
-    padding: 6px 14px;
-    border: none;
-    background: #e60017;
-    color: white;
-    border-radius: 6px;
-    cursor: pointer;
-}
+    .chat-input-container {
+        display: flex;
+        gap: 6px;
+    }
 
-/* Sections */
-.applications, .job-search, .internal-jobs {
-    margin: 30px 0;
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 5px rgba(0, 60, 255, 0.785);
-}
+    .chat-input-container input {
+        flex: 1;
+        padding: 8px 12px !important;
+        font-size: 0.85rem !important;
+        border-radius: 8px !important;
+    }
 
-.applications ul, .internal-jobs ul, .results ul {
-    list-style: none;
-    
-    padding: 0;
-}
+    .chat-input-container button {
+        padding: 8px 12px !important;
+        border-radius: 8px !important;
+    }
 
-.applications li, .internal-jobs li, .results li {
-    color: #333;
-    margin-bottom: 15px;
-    
-}
-.internal-jobs li p, .results li p{
-    font-size: 15px;
-}
+    /* Main Section Cards */
+    .dashboard-section {
+        background: rgba(30, 41, 59, 0.25);
+        border: 1px solid var(--border-glass);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        backdrop-filter: blur(10px);
+    }
 
-.badge {
-    background: #0073d8;
-    color: rgb(255, 255, 255);
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 12px;
-}
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-glass);
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
 
-.search-form {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
+    .section-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-.search-form input {
-    flex: 1;
-    padding: 8px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-}
+    /* Application status colors */
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        border-radius: 30px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        border: 1px solid transparent;
+    }
+    .status-applied { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border-color: rgba(59, 130, 246, 0.2); }
+    .status-screening { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-color: rgba(245, 158, 11, 0.2); }
+    .status-shortlisted { background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.2); }
+    .status-rejected { background: rgba(239, 68, 68, 0.1); color: #f87171; border-color: rgba(239, 68, 68, 0.2); }
 
-.search-form button {
-    padding: 8px 14px;
-    border: none;
-    background: #007bff;
-    color: white;
-    border-radius: 8px;
-    cursor: pointer;
-}
+    /* Job lists */
+    .job-item {
+        border: 1px solid var(--border-glass);
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
 
-.btn-apply, .btn-apply-now {
-    display: inline-block;
-    padding: 6px 12px;
-    background: #007bff;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    font-size: 14px;
-}
-.rk{
-    display: flex;
-    gap: 20px;
-}
-.btn-apply-now {
-    background: #007bff;
-}
+    .job-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(59, 130, 246, 0.2);
+    }
 
-/* Chatbot */
-.chat-container {
-    max-height: 200px;
-    overflow-y: auto;
-    padding: 1rem;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #dedede;
-    
-    margin-bottom: 1rem;
-}
-.user-message {
-    text-align: right;
-    color: #0d6efd;
-}
-.ai-message {
-    text-align: left;
-    color: #6c757d;
-}
-.appl{
-    margin: 30px 0;
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 5px rgba(0, 60, 255, 0.785);
-    width: 490px;
-}
-.appl ul{
-    list-style:decimal;
-    margin-left: 10px;
-    padding: 0;
-}
-.appl li{
-    color: #1c1c1c;
-    margin-bottom: 15px;
-}
+    .job-meta {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        display: flex;
+        gap: 15px;
+        margin-top: 5px;
+    }
+
+    /* Modal styling */
+    .modal-content {
+        background-color: #0f172a;
+        border: 1px solid var(--border-glass);
+        border-radius: 20px;
+    }
+    .modal-header {
+        border-bottom: 1px solid var(--border-glass);
+    }
+    .modal-footer {
+        border-top: 1px solid var(--border-glass);
+    }
+
+    @media (max-width: 991px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+        .dashboard-sidebar {
+            position: static;
+        }
+    }
 </style>
-<div class="dashboard-container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="profile">
-            <img class="avatar" src="{% static 'images/icon.jpg' %}" alt="User avatar">
-            <br>
-            <h3>{{ request.user.username|upper }}</h3>
-            <p class="target-role" style="color: #303030;">Set your target role</p>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <!-- Sidebar navigation & profile -->
+    <aside class="dashboard-sidebar">
+        <div class="profile-card">
+            <div class="avatar">
+                <i class="fa-solid fa-user-tie"></i>
+            </div>
+            <h4>{{ request.user.username|upper }}</h4>
+            <span>Candidate Profile</span>
         </div>
-        <nav>
-                <ul>
-                    <li class="active"><a href="#dashboard">Dashboard</a></li>
-                    <li><a href="#applications">My Applications</a></li>
-                    <li><a href="#internal-jobs">Internal Jobs</a></li>
-                    <li><a href="#job-search">Search Job</a></li>
-                    <li><a href="{% url 'choose_template' %}">Generate Resume</a></li>
-                </ul>
+
+        <nav class="sidebar-nav">
+            <a href="#welcome-section" class="active"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+            <a href="#applications-section"><i class="fa-solid fa-briefcase-clock"></i> My Applications</a>
+            <a href="#internal-jobs-section"><i class="fa-solid fa-building-user"></i> Internal Openings</a>
+            <a href="#external-jobs-section"><i class="fa-solid fa-magnifying-glass"></i> Job Search API</a>
+            <a href="{% url 'choose_template' %}"><i class="fa-solid fa-file-signature"></i> Create Resume</a>
         </nav>
-    </aside>
 
-    <!-- Main Content -->
-    <main class="main-content" id="dashboard">
-        <header class="top-bar">
-            <h2 style="font-size: 30px;">Hello {{ request.user.username|capfirst }}!</h2>
-            <p style="color: #303030;">What's your goal today?</p>
-            <form action="{% url 'logout' %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn-logout">Logout</button>
-            </form>
-        </header>
-
-        <!-- My Applications -->
-        
-            <div class="rk">
-                <div class="appl" id="applications">
-                    <h3 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">My Applications</h3>
-                    <br>
-            {% if my_applications %}
-                        <ul>
-                    {% for application in my_applications %}
-                            <li>
-                        <strong>{{ application.job.title }}</strong>
-                        <span class="badge">{{ application.status }}</span>
-                            </li>
-                    {% endfor %}
-                        </ul>
-            {% else %}
-                        <p>Aapne abhi tak koi job ke liye apply nahi kiya hai.</p>
-            {% endif %}
-                </div>
-                <div class="appl">
-                <h3 style="font-weight: 700; 
-           font-size: 30px; 
-           background: linear-gradient(90deg, #4f46e5, #00d4fa); 
-           background-clip: text; 
-           -webkit-background-clip: text; 
-           color: transparent; 
-           -webkit-text-fill-color: transparent; 
-           display: inline-block;">AI Career Assistant</h3>
-                <div class="chat-container" id="chat-box"></div>
-                <form id="chat-form" method="post" class="mt-3">
-                {% csrf_token %}
-                    <div class="input-group">
-                    <input type="text" id="chat-input" name="message" class="form-control" placeholder="Ask me anything...">
-                    <button type="submit" class="btn btn-primary" style="background: linear-gradient(90deg, #4f46e5, #06b6d4);">Send</button>
-                    </div>
-                </form>
+        <!-- AI Assistant Sidebar Box -->
+        <div class="chat-widget">
+            <div class="chat-header">
+                <i class="fa-solid fa-robot text-primary"></i>
+                <span>AI Career Co-Pilot</span>
+            </div>
+            <div class="chat-box" id="chat-box">
+                <div class="chat-bubble ai">
+                    Hello! Ask me any questions about resumes, career routes, or interviews.
                 </div>
             </div>
-        
+            <form id="chat-form" class="chat-input-container">
+                {% csrf_token %}
+                <input type="text" id="chat-input" class="form-control" placeholder="Type a message..." required>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </aside>
 
-        <!-- External Job Search -->
-        <section class="job-search" id="job-search">
-            <h3 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">External Job Search</h3>
-            
-            <form method="get" action="{% url 'candidate_dashboard' %}" class="search-form">
-                <input type="text" name="query" placeholder="Job title, keywords..." value="{{ query }}">
-                <input type="text" name="location" placeholder="Location" value="{{ location }}">
-                <button type="submit">Search</button>
+    <!-- Main Content Area -->
+    <main>
+        <!-- Welcome Banner -->
+        <div class="dashboard-section" id="welcome-section">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <h2 class="mb-2" style="font-weight: 800;">Welcome back, {{ request.user.username|capfirst }}!</h2>
+                    <p class="text-muted mb-0">Track your match rankings, search new openings, and polish your resume.</p>
+                </div>
+                <div>
+                    <a href="{% url 'choose_template' %}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Create New Resume</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Applications -->
+        <div class="dashboard-section" id="applications-section">
+            <div class="section-header">
+                <h3><i class="fa-solid fa-paper-plane text-primary"></i>My Applications</h3>
+                <span class="badge bg-secondary-subtle text-secondary px-3 py-2 border border-secondary-subtle">{{ my_applications|length }} Submitted</span>
+            </div>
+
+            {% if my_applications %}
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle border border-secondary border-opacity-10 rounded-3 overflow-hidden">
+                        <thead>
+                            <tr class="table-active">
+                                <th scope="col" class="py-3 px-4">Job Role</th>
+                                <th scope="col" class="py-3">Status</th>
+                                <th scope="col" class="py-3 text-center">ATS Score</th>
+                                <th scope="col" class="py-3 text-end px-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for application in my_applications %}
+                                <tr>
+                                    <td class="py-3 px-4">
+                                        <div class="fw-bold">{{ application.job.title }}</div>
+                                        <small class="text-muted">Posted by {{ application.job.recruiter.username }}</small>
+                                    </td>
+                                    <td class="py-3">
+                                        <span class="status-badge 
+                                            {% if application.status == 'Applied' %}status-applied
+                                            {% elif application.status == 'Screening' %}status-screening
+                                            {% elif application.status == 'Shortlisted' %}status-shortlisted
+                                            {% elif application.status == 'Rejected' %}status-rejected
+                                            {% else %}status-applied{% endif %}">
+                                            {{ application.status }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 text-center">
+                                        <div class="d-inline-flex align-items-center justify-content-center border rounded-circle border-opacity-25 px-2 py-1 
+                                            {% if application.ranking_score >= 75 %}border-success text-success bg-success bg-opacity-10
+                                            {% elif application.ranking_score >= 50 %}border-warning text-warning bg-warning bg-opacity-10
+                                            {% else %}border-danger text-danger bg-danger bg-opacity-10{% endif %}" 
+                                            style="width: 50px; height: 50px; font-weight: 700; font-size: 0.9rem;">
+                                            {{ application.ranking_score|floatformat:0 }}%
+                                        </div>
+                                    </td>
+                                    <td class="py-3 text-end px-4">
+                                        <button class="btn btn-secondary btn-sm px-3 view-feedback-btn"
+                                                data-job="{{ application.job.title }}"
+                                                data-score="{{ application.ranking_score|floatformat:1 }}"
+                                                data-feedback='{{ application.ats_feedback|escapejs }}'>
+                                            <i class="fa-solid fa-chart-pie me-1"></i> View AI feedback
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="fs-1 text-muted mb-3"><i class="fa-solid fa-folder-open"></i></div>
+                    <p class="text-muted">You haven't submitted any job applications yet.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Internal Jobs -->
+        <div class="dashboard-section" id="internal-jobs-section">
+            <div class="section-header">
+                <h3><i class="fa-solid fa-circle-nodes text-accent"></i>Internal Openings</h3>
+            </div>
+
+            {% for job in internal_jobs %}
+                <div class="job-item">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                        <div>
+                            <h4 class="mb-1 text-white">{{ job.title }}</h4>
+                            <div class="job-meta">
+                                <span><i class="fa-solid fa-user-tie"></i> Posted by: {{ job.recruiter.username }}</span>
+                                {% if job.job_field %}
+                                    <span><i class="fa-solid fa-tags"></i> {{ job.job_field.name }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <a href="{% url 'apply_for_job' job.id %}" class="btn btn-primary btn-sm px-3"><i class="fa-solid fa-file-arrow-up me-1"></i> Apply Now</a>
+                    </div>
+                    <p class="text-muted mt-3 mb-0">{{ job.description|truncatechars:180 }}</p>
+                </div>
+            {% empty %}
+                <div class="text-center py-4">
+                    <p class="text-muted">No internal job openings posted currently.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- External Job Search API -->
+        <div class="dashboard-section" id="external-jobs-section">
+            <div class="section-header">
+                <h3><i class="fa-solid fa-globe text-primary"></i>Job Search API (Adzuna)</h3>
+            </div>
+
+            <form method="get" action="{% url 'candidate_dashboard' %}#external-jobs-section" class="row g-3 mb-4">
+                <div class="col-md-5">
+                    <input type="text" name="query" class="form-control" placeholder="Role (e.g. Developer, Designer)" value="{{ query }}">
+                </div>
+                <div class="col-md-5">
+                    <input type="text" name="location" class="form-control" placeholder="Location (e.g. London, India)" value="{{ location }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100 py-3"><i class="fa-solid fa-magnifying-glass me-1"></i> Search</button>
+                </div>
             </form>
 
             {% if external_jobs %}
-            <div class="results">
-                <h3 style="color: #000000;">Search Results:</h3>
-                <br>
-                <ul>
+                <div class="row g-3">
                     {% for job in external_jobs %}
-                    <li>
-                        <strong style="font-size: 19px;">{{ job.title }}</strong>
-                        <p>{{ job.description|truncatechars:100 }}</p>
-                        <a href="{{ job.external_url }}" target="_blank" class="btn-apply">Apply on Company Website</a>
-                    </li>
+                        <div class="col-12">
+                            <div class="job-item">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                    <h4 class="mb-1 text-white">{{ job.title }}</h4>
+                                    <a href="{{ job.external_url }}" target="_blank" class="btn btn-secondary btn-sm px-3"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> View Details</a>
+                                </div>
+                                <p class="text-muted mt-2 mb-0">{{ job.description|truncatechars:180 }}</p>
+                            </div>
+                        </div>
                     {% endfor %}
-                </ul>
-            </div>
+                </div>
+            {% else %}
+                {% if query %}
+                    <p class="text-muted text-center py-4">No results found for your search parameters.</p>
+                {% else %}
+                    <p class="text-muted text-center py-4">Type a query above to query external job listings.</p>
+                {% endif %}
             {% endif %}
-        </section>
+        </div>
+    </main>
+</div>
 
-        <!-- Internal Jobs -->
-        <section class="internal-jobs" id="internal-jobs">
-            <h3 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">Internal Jobs</h3>
-            <br>
-            <ul>
-                {% for job in internal_jobs %}
-                <li>
-                    <div class="job-header">
-                        <strong style="font-size: 20px;">{{ job.title }}</strong><br>
-                        <small style="color: #000000;font-size: 17px;">Posted by {{ job.recruiter.username }}</small>
+<!-- ATS FEEDBACK MODAL -->
+<div class="modal fade" id="atsFeedbackModal" tabindex="-1" aria-labelledby="atsFeedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title d-flex align-items-center gap-2" id="atsFeedbackModalLabel">
+                    <i class="fa-solid fa-chart-line text-primary"></i> AI ATS Analysis: <span id="modal-job-title" class="text-accent"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" data-bs-target="#atsFeedbackModal" data-bs-toggle="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- Score Breakdown -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="h6 text-light mb-0">ATS Score Rating</span>
+                        <span id="modal-score-badge" class="badge bg-primary px-3 py-2"></span>
                     </div>
-                    <p>{{ job.description|truncatechars:150 }}</p>
-                    <a href="{% url 'apply_for_job' job.id %}" class="btn-apply-now">Apply Now</a>
-                </li>
-                {% empty %}
-                <p>No internal jobs are available right now.</p>
-                {% endfor %}
-            </ul>
-        </section>
+                    <div class="progress" style="height: 25px; border-radius: 10px; background-color: rgba(255,255,255,0.05); overflow: hidden;">
+                        <div id="modal-score-progress" class="progress-bar progress-bar-striped progress-bar-animated bg-gradient" role="progressbar" style="width: 0%; font-weight: 700;"></div>
+                    </div>
+                </div>
 
-        <!-- AI Career Assistant -->
+                <hr class="border-secondary opacity-25 my-4">
+
+                <!-- Matching Skills -->
+                <div class="mb-4">
+                    <h6 class="text-success mb-3"><i class="fa-solid fa-circle-check me-2"></i>Skills Matched</h6>
+                    <div id="modal-matched-list" class="d-flex flex-wrap"></div>
+                </div>
+
+                <!-- Missing Skills -->
+                <div class="mb-4">
+                    <h6 class="text-danger mb-3"><i class="fa-solid fa-circle-xmark me-2"></i>Missing Skills / Keywords</h6>
+                    <div id="modal-missing-list" class="d-flex flex-wrap"></div>
+                </div>
+
+                <hr class="border-secondary opacity-25 my-4">
+
+                <!-- AI Recommendations -->
+                <div>
+                    <h6 class="text-info mb-3"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>AI Custom Recommendations</h6>
+                    <ul id="modal-rec-list" class="list-unstyled ps-0"></ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JS Controller Logic -->
 <script>
+    // Navigation highlight helper
+    document.querySelectorAll('.sidebar-nav a').forEach(link => {
+        link.addEventListener('click', function() {
+            document.querySelectorAll('.sidebar-nav a').forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Chatbot response fetcher
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
     const chatBox = document.getElementById('chat-box');
 
     chatForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        const userMessage = chatInput.value;
-        if (!userMessage.trim()) return;
+        const userMessage = chatInput.value.trim();
+        if (!userMessage) return;
 
-        // Add user message
-        chatBox.innerHTML += `<div class="p-2 user-message"><strong>You:</strong> ${userMessage}</div>`;
+        // Display user bubble
+        chatBox.innerHTML += `<div class="chat-bubble user">${userMessage}</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
         chatInput.value = '';
 
-        // Show typing message
-        const typingHtml = `<div class="p-2 ai-message"><em>AI is typing...</em></div>`;
-        chatBox.innerHTML += typingHtml;
+        // Display typing placeholder
+        const typingId = 'typing-' + Date.now();
+        chatBox.innerHTML += `<div class="chat-bubble ai" id="${typingId}"><em>Thinking...</em></div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
 
-        // Send to backend
+        // Fetch
         fetch('/chatbot/response/', {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             },
-            body: new URLSearchParams({
-                'message': userMessage
-            })
+            body: new URLSearchParams({ 'message': userMessage })
         })
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
-            chatBox.lastElementChild.remove();
-            chatBox.innerHTML += `<div class="p-2 ai-message"><strong>AI:</strong> ${data.response}</div>`;
+            const typingBubble = document.getElementById(typingId);
+            if (typingBubble) {
+                typingBubble.innerHTML = data.response;
+            }
             chatBox.scrollTop = chatBox.scrollHeight;
         })
-        .catch(error => {
-            console.error('Error:', error);
-            chatBox.lastElementChild.remove();
-            chatBox.innerHTML += `<div class="p-2 ai-message text-danger"><strong>AI:</strong> Sorry, an error occurred.</div>`;
+        .catch(err => {
+            const typingBubble = document.getElementById(typingId);
+            if (typingBubble) {
+                typingBubble.classList.add('text-danger');
+                typingBubble.innerHTML = 'Error: Chatbot currently offline.';
+            }
             chatBox.scrollTop = chatBox.scrollHeight;
         });
     });
+
+    // ATS Feedback details binding
+    document.querySelectorAll('.view-feedback-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const job = this.getAttribute('data-job');
+            const score = parseFloat(this.getAttribute('data-score'));
+            const feedbackRaw = this.getAttribute('data-feedback');
+            
+            let feedback = {
+                matched_keywords: ["Reviewing keywords..."],
+                missing_keywords: ["Reviewing description..."],
+                recommendations: ["Ensure matching items are updated."]
+            };
+            
+            try {
+                if (feedbackRaw && feedbackRaw.trim()) {
+                    feedback = JSON.parse(feedbackRaw);
+                }
+            } catch(e) {
+                console.error("Failed to parse ATS feedback JSON:", e);
+            }
+            
+            document.getElementById('modal-job-title').innerText = job;
+            document.getElementById('modal-score-badge').innerText = score.toFixed(1) + '% Match';
+            
+            // Progress Bar settings
+            const progressBar = document.getElementById('modal-score-progress');
+            progressBar.style.width = score + '%';
+            progressBar.innerText = score.toFixed(0) + '%';
+            
+            // Adjust progress bar color classes
+            progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated';
+            if (score >= 75) {
+                progressBar.classList.add('bg-success');
+            } else if (score >= 50) {
+                progressBar.classList.add('bg-warning');
+            } else {
+                progressBar.classList.add('bg-danger');
+            }
+            
+            // Populate matched
+            const matchedList = document.getElementById('modal-matched-list');
+            matchedList.innerHTML = '';
+            const matchedArr = feedback.matched_keywords || [];
+            if (matchedArr.length === 0 || (matchedArr.length === 1 && matchedArr[0] === "")) {
+                matchedList.innerHTML = '<span class="text-muted font-monospace text-sm">None identified</span>';
+            } else {
+                matchedArr.forEach(kw => {
+                    matchedList.innerHTML += `<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 me-2 mb-2">${kw}</span>`;
+                });
+            }
+            
+            // Populate missing
+            const missingList = document.getElementById('modal-missing-list');
+            missingList.innerHTML = '';
+            const missingArr = feedback.missing_keywords || [];
+            if (missingArr.length === 0 || (missingArr.length === 1 && missingArr[0] === "")) {
+                missingList.innerHTML = '<span class="text-muted font-monospace text-sm">None identified</span>';
+            } else {
+                missingArr.forEach(kw => {
+                    missingList.innerHTML += `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-2 me-2 mb-2">${kw}</span>`;
+                });
+            }
+            
+            // Populate recommendations
+            const recList = document.getElementById('modal-rec-list');
+            recList.innerHTML = '';
+            const recArr = feedback.recommendations || [];
+            if (recArr.length === 0) {
+                recList.innerHTML = '<li class="text-muted">No specific recommendations available.</li>';
+            } else {
+                recArr.forEach(rec => {
+                    recList.innerHTML += `<li class="mb-2 text-light"><i class="fa-solid fa-wand-magic-sparkles text-info me-2"></i>${rec}</li>`;
+                });
+            }
+            
+            // Show modal
+            const feedbackModal = new bootstrap.Modal(document.getElementById('atsFeedbackModal'));
+            feedbackModal.show();
+        });
+    });
 </script>
-
-
-
 {% endblock %}

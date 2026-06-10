@@ -1,37 +1,272 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h2>Applications for "{{ job.title }}"</h2>
-        <a href="{% url 'recruiter_dashboard' %}" class="btn btn-secondary">Go back to Dashboard</a>
-        <hr>
+<style>
+    .recruiter-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .list-section {
+        background: rgba(30, 41, 59, 0.25);
+        border: 1px solid var(--border-glass);
+        border-radius: 20px;
+        padding: 40px 30px;
+        backdrop-filter: blur(10px);
+    }
+
+    .list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-glass);
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
+
+    .list-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    /* Application status badges */
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        border-radius: 30px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        border: 1px solid transparent;
+    }
+    .status-applied { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border-color: rgba(59, 130, 246, 0.2); }
+    .status-screening { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-color: rgba(245, 158, 11, 0.2); }
+    .status-shortlisted { background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.2); }
+    .status-rejected { background: rgba(239, 68, 68, 0.1); color: #f87171; border-color: rgba(239, 68, 68, 0.2); }
+
+    /* Modal styling */
+    .modal-content {
+        background-color: #0f172a;
+        border: 1px solid var(--border-glass);
+        border-radius: 20px;
+    }
+    .modal-header {
+        border-bottom: 1px solid var(--border-glass);
+    }
+    .modal-footer {
+        border-top: 1px solid var(--border-glass);
+    }
+</style>
+
+<div class="recruiter-container">
+    <!-- List of Candidates -->
+    <div class="list-section">
+        <div class="list-header flex-wrap gap-2">
+            <h3><i class="fa-solid fa-users-viewfinder text-primary me-2"></i>Applications for: "{{ job.title }}"</h3>
+            <a href="{% url 'recruiter_dashboard' %}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left me-2"></i>Back to Hub</a>
+        </div>
+
+        {% if applications %}
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle border border-secondary border-opacity-10 rounded-3 overflow-hidden">
+                    <thead>
+                        <tr class="table-active">
+                            <th scope="col" class="py-3 px-4">Candidate Username</th>
+                            <th scope="col" class="py-3 text-center">Compatibility Rating</th>
+                            <th scope="col" class="py-3">Status</th>
+                            <th scope="col" class="py-3 text-end px-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in applications %}
+                            <tr>
+                                <td class="py-3 px-4">
+                                    <div class="fw-bold fs-5 text-white">{{ application.candidate.username }}</div>
+                                    <a href="{{ application.resume.url }}" target="_blank" class="text-primary text-decoration-none text-sm fw-semibold"><i class="fa-solid fa-file-pdf me-1"></i>Download Resume</a>
+                                </td>
+                                <td class="py-3 text-center">
+                                    <div class="d-inline-flex align-items-center justify-content-center border rounded-circle border-opacity-25 px-2 py-1 
+                                        {% if application.ranking_score >= 75 %}border-success text-success bg-success bg-opacity-10
+                                        {% elif application.ranking_score >= 50 %}border-warning text-warning bg-warning bg-opacity-10
+                                        {% else %}border-danger text-danger bg-danger bg-opacity-10{% endif %}" 
+                                        style="width: 55px; height: 55px; font-weight: 700; font-size: 0.95rem;">
+                                        {{ application.ranking_score|floatformat:0 }}%
+                                    </div>
+                                </td>
+                                <td class="py-3">
+                                    <span class="status-badge 
+                                        {% if application.status == 'Applied' %}status-applied
+                                        {% elif application.status == 'Screening' %}status-screening
+                                        {% elif application.status == 'Shortlisted' %}status-shortlisted
+                                        {% elif application.status == 'Rejected' %}status-rejected
+                                        {% else %}status-applied{% endif %}">
+                                        {{ application.status }}
+                                    </span>
+                                </td>
+                                <td class="py-3 text-end px-4">
+                                    <div class="d-flex justify-content-end gap-2 flex-wrap">
+                                        <button class="btn btn-secondary btn-sm px-3 view-feedback-btn"
+                                                data-candidate="{{ application.candidate.username }}"
+                                                data-score="{{ application.ranking_score|floatformat:1 }}"
+                                                data-feedback='{{ application.ats_feedback|escapejs }}'>
+                                            <i class="fa-solid fa-brain me-1"></i> AI Breakdown
+                                        </button>
+                                        
+                                        {% if application.status != 'Shortlisted' %}
+                                            <a href="{% url 'shortlist_application' application.id %}" class="btn btn-success btn-sm px-3"><i class="fa-solid fa-check me-1"></i>Shortlist</a>
+                                        {% endif %}
+                                        
+                                        {% if application.status != 'Rejected' %}
+                                            <a href="{% url 'reject_application' application.id %}" class="btn btn-danger btn-sm px-3"><i class="fa-solid fa-xmark me-1"></i>Reject</a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="fs-1 text-muted mb-3"><i class="fa-solid fa-folder-open"></i></div>
+                <p class="text-muted">No candidates have applied for this job yet.</p>
+            </div>
+        {% endif %}
     </div>
 </div>
 
-{% if applications %}
-<div class="row">
-    <div class="col-12">
-        <p>Total Applications: <strong>{{ applications.count }}</strong></p>
-        <ul class="list-group">
-            {% for application in applications %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="mb-1">Candidate: {{ application.candidate.username }}</h5>
-                    <p class="mb-1">Score: <span class="badge bg-info">{{ application.ranking_score|floatformat:2 }}%</span></p>
-                    <p class="mb-1">Status: <span class="badge bg-secondary">{{ application.status }}</span></p>
+<!-- ATS FEEDBACK MODAL -->
+<div class="modal fade" id="atsFeedbackModal" tabindex="-1" aria-labelledby="atsFeedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title d-flex align-items-center gap-2" id="atsFeedbackModalLabel">
+                    <i class="fa-solid fa-chart-line text-primary"></i> AI ATS Analysis: <span id="modal-candidate-name" class="text-accent"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" data-bs-target="#atsFeedbackModal" data-bs-toggle="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- Score Breakdown -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="h6 text-light mb-0">ATS Score Rating</span>
+                        <span id="modal-score-badge" class="badge bg-primary px-3 py-2"></span>
+                    </div>
+                    <div class="progress" style="height: 25px; border-radius: 10px; background-color: rgba(255,255,255,0.05); overflow: hidden;">
+                        <div id="modal-score-progress" class="progress-bar progress-bar-striped progress-bar-animated bg-gradient" role="progressbar" style="width: 0%; font-weight: 700;"></div>
+                    </div>
                 </div>
-                <div>
-                    <a href="{{ application.resume.url }}" target="_blank" class="btn btn-sm btn-info">Download Resume</a>
-                    <a href="{% url 'shortlist_application' application.id %}" class="btn btn-sm btn-success">Shortlist</a>
-                    <a href="{% url 'reject_application' application.id %}" class="btn btn-sm btn-danger">Reject</a>
+
+                <hr class="border-secondary opacity-25 my-4">
+
+                <!-- Matching Skills -->
+                <div class="mb-4">
+                    <h6 class="text-success mb-3"><i class="fa-solid fa-circle-check me-2"></i>Skills Matched</h6>
+                    <div id="modal-matched-list" class="d-flex flex-wrap"></div>
                 </div>
-            </li>
-            {% endfor %}
-        </ul>
+
+                <!-- Missing Skills -->
+                <div class="mb-4">
+                    <h6 class="text-danger mb-3"><i class="fa-solid fa-circle-xmark me-2"></i>Missing Skills / Keywords</h6>
+                    <div id="modal-missing-list" class="d-flex flex-wrap"></div>
+                </div>
+
+                <hr class="border-secondary opacity-25 my-4">
+
+                <!-- AI Recommendations -->
+                <div>
+                    <h6 class="text-info mb-3"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>AI Custom Recommendations</h6>
+                    <ul id="modal-rec-list" class="list-unstyled ps-0"></ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>
-{% else %}
-<p>Currently, there are no applications for this job.</p>
-{% endif %}
+
+<script>
+    // ATS Feedback details binding
+    document.querySelectorAll('.view-feedback-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const candidate = this.getAttribute('data-candidate');
+            const score = parseFloat(this.getAttribute('data-score'));
+            const feedbackRaw = this.getAttribute('data-feedback');
+            
+            let feedback = {
+                matched_keywords: ["Reviewing keywords..."],
+                missing_keywords: ["Reviewing description..."],
+                recommendations: ["Ensure matching items are updated."]
+            };
+            
+            try {
+                if (feedbackRaw && feedbackRaw.trim()) {
+                    feedback = JSON.parse(feedbackRaw);
+                }
+            } catch(e) {
+                console.error("Failed to parse ATS feedback JSON:", e);
+            }
+            
+            document.getElementById('modal-candidate-name').innerText = candidate;
+            document.getElementById('modal-score-badge').innerText = score.toFixed(1) + '% Match';
+            
+            // Progress Bar settings
+            const progressBar = document.getElementById('modal-score-progress');
+            progressBar.style.width = score + '%';
+            progressBar.innerText = score.toFixed(0) + '%';
+            
+            // Adjust progress bar color classes
+            progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated';
+            if (score >= 75) {
+                progressBar.classList.add('bg-success');
+            } else if (score >= 50) {
+                progressBar.classList.add('bg-warning');
+            } else {
+                progressBar.classList.add('bg-danger');
+            }
+            
+            // Populate matched
+            const matchedList = document.getElementById('modal-matched-list');
+            matchedList.innerHTML = '';
+            const matchedArr = feedback.matched_keywords || [];
+            if (matchedArr.length === 0 || (matchedArr.length === 1 && matchedArr[0] === "")) {
+                matchedList.innerHTML = '<span class="text-muted font-monospace text-sm">None identified</span>';
+            } else {
+                matchedArr.forEach(kw => {
+                    matchedList.innerHTML += `<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 me-2 mb-2">${kw}</span>`;
+                });
+            }
+            
+            // Populate missing
+            const missingList = document.getElementById('modal-missing-list');
+            missingList.innerHTML = '';
+            const missingArr = feedback.missing_keywords || [];
+            if (missingArr.length === 0 || (missingArr.length === 1 && missingArr[0] === "")) {
+                missingList.innerHTML = '<span class="text-muted font-monospace text-sm">None identified</span>';
+            } else {
+                missingArr.forEach(kw => {
+                    missingList.innerHTML += `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-2 me-2 mb-2">${kw}</span>`;
+                });
+            }
+            
+            // Populate recommendations
+            const recList = document.getElementById('modal-rec-list');
+            recList.innerHTML = '';
+            const recArr = feedback.recommendations || [];
+            if (recArr.length === 0) {
+                recList.innerHTML = '<li class="text-muted">No specific recommendations available.</li>';
+            } else {
+                recArr.forEach(rec => {
+                    recList.innerHTML += `<li class="mb-2 text-light"><i class="fa-solid fa-wand-magic-sparkles text-info me-2"></i>${rec}</li>`;
+                });
+            }
+            
+            // Show modal
+            const feedbackModal = new bootstrap.Modal(document.getElementById('atsFeedbackModal'));
+            feedbackModal.show();
+        });
+    });
+</script>
 {% endblock %}

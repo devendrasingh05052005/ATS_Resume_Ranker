@@ -1,6 +1,14 @@
 import os
 from pathlib import Path
 import dj_database_url
+
+try:
+    from dotenv import load_dotenv
+    # Load env file if it exists
+    load_dotenv(os.path.join(Path(__file__).resolve().parent.parent, '.env'))
+except ImportError:
+    pass
+
 """
 Django settings for ats_project project.
 
@@ -13,8 +21,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,7 +32,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-0ncy+0=)m7(gj%)^pjb3f&qiu24=!2v3=$vo0hb#tgey!x(_t=")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+# For local development, default to True if not explicitly overridden.
+DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+
+# Gemini API Key configuration (supports both GEMINI_API_KEY and GOOGLE_API_KEY env vars)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", os.getenv("GOOGLE_API_KEY", "AIzaSyDpzODbpZx-aSYLCuenmO3x-hhJeD27uhg"))
 
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", ".onrender.com,localhost,127.0.0.1").split(",") if h.strip()]
 
@@ -126,7 +136,6 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -139,13 +148,31 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = 'core.CustomUser'
 
+# Auth redirects
 LOGIN_REDIRECT_URL = 'dashboard'
-
-LOGIN_REDIRECT_URL = 'dashboard'
-
-LOGOUT_REDIRECT_URL = 'home' 
-LOGIN_URL = '/accounts/login/'
+# Use the actual named URL that exists in core/urls.py
+LOGIN_URL = 'candidate_login'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'core', 'static')
 ]
+
+# --- Hosted environment hardening (sessions/CSRF) ---
+# Ensure CSRF works behind proxies (e.g., Render). Include your domain(s) here.
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip() for origin in os.getenv(
+        "CSRF_TRUSTED_ORIGINS",
+        "https://*.onrender.com"
+    ).split(",") if origin.strip()
+]
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # Secure cookies so sessions persist only over HTTPS
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # Recommended sane default for cross-site cookie behavior
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    # Use WhiteNoise manifest storage only in production
+    if not DEBUG:
+        STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"

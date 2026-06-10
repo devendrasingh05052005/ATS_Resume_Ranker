@@ -1,29 +1,165 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ full_name }} Resume</title>
+    <meta charset="utf-8">
+    <title>{{ full_name }} - Resume</title>
     <style>
-        body { font-family: Consolas, 'Courier New', monospace; line-height: 1.6; max-width: 800px; margin: auto; padding: 20px; }
-        h1 { text-transform: uppercase; }
-        h3 { color: #555; }
-        ul { list-style-type: none; padding-left: 0; }
+        :root {
+            --primary: #0f172a;
+            --secondary: #475569;
+            --accent: #2563eb;
+            --border: #cbd5e1;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.45;
+            color: var(--primary);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #ffffff;
+        }
+
+        /* Print controller banner */
+        .print-banner {
+            background: #0f172a;
+            color: #ffffff;
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .print-banner span {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .print-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .print-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* Technical Header styling */
+        .header {
+            border-bottom: 3px double var(--secondary);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 0 0 5px 0;
+            letter-spacing: -0.02em;
+            color: var(--primary);
+        }
+
+        .header .role {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin: 0 0 10px 0;
+        }
+
+        .header .meta {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: var(--secondary);
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: var(--primary);
+            border-bottom: 1.5px solid var(--secondary);
+            padding-bottom: 3px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .content-block {
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            color: var(--secondary);
+        }
+
+        .skills-block {
+            font-family: "Courier New", Courier, monospace;
+            font-weight: 500;
+            background-color: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 6px;
+            color: #0f172a;
+        }
+
+        /* Print media controls */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                padding: 0;
+                margin: 0;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>{{ full_name }}</h1>
-    <p>Email: {{ email }} | Phone: {{ phone_number }}</p>
-    <hr>
+
+    <!-- Floating Print Tool -->
+    <div class="print-banner no-print">
+        <span>AI-ATS Resume Suite: Print or Save as PDF</span>
+        <button onclick="window.print()" class="print-btn">Print / Save as PDF</button>
+    </div>
+
+    <!-- Resume Body -->
+    <div class="header">
+        <h1>{{ full_name }}</h1>
+        <div class="role">{{ target_job_title }}</div>
+        <div class="meta">
+            <span>Email: {{ email }}</span>
+            <span>Phone: {{ phone_number }}</span>
+        </div>
+    </div>
     
-    <h3>Work Experience</h3>
-    <p>{{ work_experience|linebreaksbr }}</p>
+    <div class="section">
+        <div class="section-title">01. Technical Stack & Skills</div>
+        <div class="content-block skills-block">{{ skills }}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">02. Professional Experience</div>
+        <div class="content-block">{{ work_experience }}</div>
+    </div>
     
-    <h3>Education</h3>
-    <p>{{ education|linebreaksbr }}</p>
-    
-    <h3>Skills</h3>
-    <p>{{ skills|linebreaksbr }}</p>
-    
-    
+    <div class="section">
+        <div class="section-title">03. Education Background</div>
+        <div class="content-block">{{ education }}</div>
+    </div>
 
 </body>
 </html>

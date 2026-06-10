@@ -1,169 +1,201 @@
 {% extends 'core/base.html' %}
 {% load static %}
+
 {% block content %}
-<div class="dashboard-container">
-
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold">Recruiter Dashboard</h2>
-            <p class="text-muted">Post jobs and manage candidates directly from here.</p>
-        </div>
-        <form action="{% url 'logout' %}" method="post">
-            {% csrf_token %}
-            <a href="{% url 'post_job' %}" class="btn btn-primary rounded-pill px-3">+ Add Job </a>
-            
-        </form>
-    </div>
-
-    <!-- Analytics Cards -->
-    <div class="row g-3 mb-4">
-    <!-- Total Applications -->
-    <div class="col-md-4">
-        <div class="card shadow-sm p-4 rounded-3 d-flex flex-row justify-content-between align-items-center">
-            <div>
-                <h6 class="text-muted">Total Applications</h6>
-                <h1 class="fw-bold">{{ total_applications|default:"0" }}</h1>
-            </div>
-            <div style="background:url('{% static 'images/totalaplicant.jpg' %}') no-repeat center center/cover;
-                        height:100px; width:80px; border-radius:12px;">
-            </div>
-        </div>
-    </div>
-
-    <!-- Shortlisted Candidates -->
-    <div class="col-md-4">
-        <div class="card shadow-sm p-4 rounded-3 d-flex flex-row justify-content-between align-items-center">
-            <div>
-                <h6 class="text-muted">Shortlisted Candidates</h6>
-                <h1 class="fw-bold text-success">{{ shortlisted|default:"2" }}</h1>
-            </div>
-            <div style="background:url('{% static 'images/shortlisted.png' %}') no-repeat center center/cover;
-                        height:100px; width:80px; border-radius:12px;">
-            </div>
-        </div>
-    </div>
-
-    <!-- Rejected Candidates -->
-    <div class="col-md-4">
-        <div class="card shadow-sm p-4 rounded-3 d-flex flex-row justify-content-between align-items-center">
-            <div>
-                <h6 class="text-muted">Rejected Candidates</h6>
-                <h1 class="fw-bold text-danger">{{ rejected|default:"3" }}</h1>
-            </div>
-            <div style="background:url('{% static 'images/rejected.png' %}') no-repeat center center/cover;
-                        height:100px; width:80px; border-radius:12px;">
-            </div>
-        </div>
-    </div>
-</div>
-
-    <!-- Posted Jobs -->
-    <div class="card shadow-sm p-4 rounded-3">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="fw-semibold">Your Jobs</h3>
-            
-        </div>
-
-        <ul class="list-group list-group-flush ">
-            {% for job in jobs %}
-            <li class="list-group-item py-3">
-                <div class="d-flex w-100 justify-content-between align-items-center">
-                    <h5 class="mb-1">{{ job.title }}</h5>
-                    <small class="text-muted">Posted on {{ job.created_at|date:"M d, Y" }}</small>
-                </div>
-                <p class="mb-1 text-muted">{{ job.description|truncatechars:150 }}</p>
-                <a href="{% url 'recruiter_job_applications' job.id %}" class="btn btn-sm btn-outline-success mt-2">View Applications</a>
-            </li>
-            {% empty %}
-            <p class="text-muted">No jobs have been posted yet.</p>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-
-<!-- Custom CSS -->
 <style>
-.dashboard-container {
-    max-width: 1100px;
-    gap: 20px;
-    
-    margin: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-}
+    .recruiter-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
 
-/* Analytics Cards */
-.row.g-3.mb-4 {
-    display: flex;
-    flex-wrap: wrap;
-    border-color: black;
-    gap: 20px;
-}
+    /* Welcome Banner */
+    .recruiter-welcome {
+        background: rgba(30, 41, 59, 0.25);
+        border: 1px solid var(--border-glass);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 40px;
+        backdrop-filter: blur(10px);
+    }
 
-.col-md-4 {
-    flex: 1;
-    
-    background: #fff;
-    border-radius: 12px;
-    
-    box-shadow: 0 2px 5px rgba(0, 60, 255, 0.785);
-    
-}
+    /* Analytics Dashboard Grid */
+    .analytics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
 
-
-/* Cards */
-    .card {
-        background: #fff;
-        border-radius: 16px;
-        
-        box-shadow: 10px 4px 12px rgb(0, 0, 0);
-        
-        
-        
+    .analytics-card {
+        background: rgba(30, 41, 59, 0.45);
+        border: 1px solid var(--border-glass);
+        border-radius: 18px;
+        padding: 25px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         transition: all 0.3s ease;
-        border: 1px solid #b7b7b7;
     }
 
-    .card:hover {
-        background: #e8e8e8;
-        transform: translateY(-6px);
-        box-shadow: 0 10px 24px rgba(0, 123, 255, 0.15);
-        border-color: #007bff;
+    .analytics-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px var(--primary-glow);
+        border-color: rgba(59, 130, 246, 0.2);
     }
-/* Card headings */
-.card h3 {
-    font-size: 1.8rem;
-}
 
-/* Buttons */
-.btn {
-    font-weight: 500;
-    border-radius: 12px;
-}
-
-/* List group items */
-.list-group-item {
-    
-    
-    border: 1px solid black;
-    padding: 15px 0;
-}
-
-/* Small heading tweaks */
-h6.text-muted {
-    font-size: 0.9rem;
-    margin-bottom: 10px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .row.g-3.mb-4 {
-        
-        flex-direction: column;
+    .analytics-info h6 {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
-}
+
+    .analytics-info h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        margin: 0;
+        background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .analytics-card.shortlisted .analytics-info h1 {
+        background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+        -webkit-background-clip: text;
+    }
+
+    .analytics-card.rejected .analytics-info h1 {
+        background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+        -webkit-background-clip: text;
+    }
+
+    .analytics-icon {
+        width: 65px;
+        height: 65px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-glass);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+    }
+
+    .analytics-card.total .analytics-icon { color: var(--primary); background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2); }
+    .analytics-card.shortlisted .analytics-icon { color: var(--success); background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); }
+    .analytics-card.rejected .analytics-icon { color: var(--danger); background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); }
+
+    /* Jobs Section */
+    .jobs-section {
+        background: rgba(30, 41, 59, 0.25);
+        border: 1px solid var(--border-glass);
+        border-radius: 20px;
+        padding: 40px 30px;
+    }
+
+    .jobs-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-glass);
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
+
+    .jobs-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    .job-card-item {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-glass);
+        border-radius: 14px;
+        padding: 25px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .job-card-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(59, 130, 246, 0.2);
+    }
 </style>
 
+<div class="recruiter-container">
+    <!-- Welcome Header Banner -->
+    <div class="recruiter-welcome d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2 class="fw-extrabold mb-1">Recruiter Hub</h2>
+            <p class="text-muted mb-0">Publish job postings and track incoming candidate match profiles.</p>
+        </div>
+        <a href="{% url 'post_job' %}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Post New Job</a>
+    </div>
+
+    <!-- Analytics Dashboard Cards -->
+    <div class="analytics-grid">
+        <!-- Total Applications -->
+        <div class="analytics-card total">
+            <div class="analytics-info">
+                <h6>Total Applications</h6>
+                <h1>{{ total_applications|default:"0" }}</h1>
+            </div>
+            <div class="analytics-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+        </div>
+
+        <!-- Shortlisted Candidates -->
+        <div class="analytics-card shortlisted">
+            <div class="analytics-info">
+                <h6>Shortlisted</h6>
+                <h1>{{ shortlisted|default:"0" }}</h1>
+            </div>
+            <div class="analytics-icon">
+                <i class="fa-solid fa-user-check"></i>
+            </div>
+        </div>
+
+        <!-- Rejected Candidates -->
+        <div class="analytics-card rejected">
+            <div class="analytics-info">
+                <h6>Rejected</h6>
+                <h1>{{ rejected|default:"0" }}</h1>
+            </div>
+            <div class="analytics-icon">
+                <i class="fa-solid fa-user-xmark"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Posted Jobs List -->
+    <div class="jobs-section">
+        <div class="jobs-header">
+            <h3><i class="fa-solid fa-briefcase text-primary me-2"></i>Your Published Jobs</h3>
+            <span class="badge bg-secondary-subtle text-secondary px-3 py-2 border border-secondary-subtle">{{ jobs|length }} Active</span>
+        </div>
+
+        {% if jobs %}
+            {% for job in jobs %}
+                <div class="job-card-item">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                        <h4 class="text-white mb-0">{{ job.title }}</h4>
+                        {% if job.job_field %}
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1"><i class="fa-solid fa-tag me-1"></i>{{ job.job_field.name }}</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-muted mb-4">{{ job.description|truncatechars:180 }}</p>
+                    <a href="{% url 'recruiter_job_applications' job.id %}" class="btn btn-success btn-sm px-4"><i class="fa-solid fa-users-viewfinder me-2"></i>Review Candidates</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-5">
+                <div class="fs-1 text-muted mb-3"><i class="fa-solid fa-folder-open"></i></div>
+                <p class="text-muted">You haven't posted any jobs yet. Click "Post New Job" to begin hiring.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

@@ -1,117 +1,96 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-8">
-        <div class="card p-4">
-            <h2 class="text-center mb-4">Apply for: {{ job.title }}</h2>
+<style>
+    .apply-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .apply-card {
+        background: rgba(30, 41, 59, 0.45);
+        border: 1px solid var(--border-glass);
+        border-radius: 20px;
+        padding: 40px;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .apply-card h2 {
+        font-weight: 700;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .apply-card p.job-desc-snippet {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border-glass);
+    }
 
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-success w-100">Submit Application</button>
-            </form>
+    /* Style django form paragraphs */
+    .apply-card form p {
+        margin-bottom: 25px;
+    }
 
-            <a href="{% url 'candidate_dashboard' %}" class="btn btn-secondary w-100 mt-3 text-center">
-                Go back to dashboard
-            </a>
+    .apply-card form p label {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #cbd5e1;
+        margin-bottom: 8px;
+    }
+
+    .apply-card form p input[type="file"] {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 12px;
+        color: white;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .apply-card form p input[type="file"]::file-selector-button {
+        background: var(--primary);
+        border: none;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-right: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .apply-card form p input[type="file"]::file-selector-button:hover {
+        background: var(--primary-hover);
+    }
+</style>
+
+<div class="apply-container">
+    <div class="apply-card">
+        <div class="text-center mb-4">
+            <div class="display-6 text-primary mb-2"><i class="fa-solid fa-file-arrow-up"></i></div>
+            <h2>Apply: {{ job.title }}</h2>
+            <p class="job-desc-snippet">Upload your resume to calculate your compatibility rating.</p>
         </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success w-100 py-3 mt-2"><i class="fa-solid fa-paper-plane me-2"></i>Submit Application</button>
+        </form>
+
+        <a href="{% url 'candidate_dashboard' %}" class="btn btn-secondary w-100 py-3 mt-3">
+            <i class="fa-solid fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
     </div>
 </div>
-
-<!-- Custom CSS -->
-<style>
-/* General body styling */
-body {
-    font-family: 'Inter', sans-serif;
-    background: #f9fbfd;
-    margin: 0;
-    padding: 0;
-    
-}
-
-/* Center the card */
-.row.justify-content-center {
-    margin-top: 50px;
-}
-
-/* Card styling */
-.card {
-    border: 1px solid black;
-    border-radius: 12px;
-    width: 500px;
-    height: 400px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    background: #fff;
-    padding: 30px;
-    margin-left: 150px;
-}
-
-/* Form heading */
-.card h2 {
-    font-size: 2rem;
-    font-weight: 600;
-    color: #333;
-}
-
-/* Form fields */
-.card form p {
-    margin-bottom: 15px;
-    color: #333 ;
-}
-
-.card form input,
-.card form select,
-.card form textarea {
-    width: 100%;
-    color: #333 ;
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    outline: none;
-    transition: all 0.3s ease;
-}
-
-.card form input:focus,
-.card form select:focus,
-.card form textarea:focus {
-    border-color: #006eff;
-    box-shadow: 0 0 5px rgba(40, 78, 167, 0.3);
-}
-
-/* Submit button */
-.card form button[type="submit"] {
-    font-weight: 600;
-    font-size: 1rem;
-    border-radius: 8px;
-    background-color: #006eff;
-    border-color: #006aff;
-    padding: 10px;
-    transition: all 0.3s ease;
-}
-
-.card form button[type="submit"]:hover {
-    background-color: #0151ba;
-    border-color: #014ebb;
-}
-
-/* Go back button */
-.card a.btn-secondary {
-    display: block;
-    margin-top: 15px;
-    font-weight: 500;
-    text-align: center;
-    border-radius: 8px;
-    padding: 10px;
-    text-decoration: none;
-    color: #fff;
-    background-color: #676767;
-    transition: all 0.3s ease;
-}
-
-.card a.btn-secondary:hover {
-    background-color: #434343;
-    color: #fff;
-}
-</style>
 {% endblock %}

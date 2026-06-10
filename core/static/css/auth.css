@@ -1,0 +1,176 @@
+/* Professional Auth Styles */
+:root {
+  --bg-dark: #0d1117;
+  --card-dark: #111416;
+  --primary: #0d6efd;
+  --primary-700: #0a58ca;
+  --text: #e6e6e6;
+  --muted: #9aa4ad;
+  --border: #1f2630;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: radial-gradient(1200px 600px at 80% -10%, rgba(13, 110, 253, 0.10), transparent 60%),
+              radial-gradient(1000px 500px at -10% 110%, rgba(13, 110, 253, 0.10), transparent 60%),
+              var(--bg-dark);
+  color: var(--text);
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+}
+
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 140px);
+  padding: 32px 16px;
+}
+
+.login-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: min(980px, 96vw);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)) , var(--card-dark);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.40),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+/* Left: form */
+.login-left {
+  padding: 40px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  background: linear-gradient(180deg, rgba(17, 20, 22, 0.6), rgba(17, 20, 22, 0.9));
+}
+
+.login-left h2 {
+  font-weight: 800;
+  color: var(--text);
+  margin: 6px 0 12px;
+  letter-spacing: -0.02em;
+}
+
+.login-left .subtitle {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.login-left form p { margin-bottom: 16px; }
+
+.login-left input {
+  background: #0f141a !important;
+  border: 1px solid var(--border) !important;
+  padding: 12px 12px !important;
+  width: 100%;
+  color: var(--text) !important;
+  border-radius: 10px;
+}
+
+.login-left input:focus {
+  outline: none;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+}
+
+.btn-primary-auth {
+  background: linear-gradient(180deg, var(--primary), var(--primary-700));
+  border: none;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.01em;
+  transition: transform 0.06s ease, filter 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 10px 20px rgba(13,110,253,0.20);
+}
+
+.btn-primary-auth:hover {
+  filter: brightness(1.02);
+  box-shadow: 0 12px 26px rgba(13,110,253,0.28);
+}
+
+.btn-primary-auth:active { transform: translateY(1px); }
+
+.btn-outline-auth {
+  background: transparent;
+  border: 1px solid var(--border);
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Right: visual panel */
+.login-right {
+  position: relative;
+  padding: 40px;
+  background: linear-gradient(180deg, rgba(13,110,253,0.07), rgba(13,110,253,0.05)), #0f1318;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.login-right .headline {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+}
+
+.login-right .headline h1 {
+  font-weight: 900;
+  font-size: clamp(26px, 3.2vw, 36px);
+  letter-spacing: -0.02em;
+  margin: 0 0 4px;
+}
+
+.login-right .headline h4 {
+  color: #d9e6ff;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.login-right .headline p {
+  color: #c2c8d0;
+  font-size: 0.98rem;
+}
+
+/* Decorative gradient blob */
+.login-right::before {
+  content: "";
+  position: absolute;
+  inset: -30% -10% auto auto;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(closest-side, rgba(13,110,253,0.4), transparent);
+  filter: blur(30px);
+  z-index: 1;
+  opacity: 0.8;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .login-card { grid-template-columns: 1fr; }
+  .login-right { min-height: 240px; }
+}
+
+/* Hero background image for login right panel */
+.login-right.login-hero {
+  background-image: url('../images/loginimg2.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  min-height: 70vh;
+}

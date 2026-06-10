@@ -54,6 +54,7 @@ class Application(models.Model):
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Applied')
     ranking_score = models.FloatField(default=0.0) 
+    ats_feedback = models.TextField(blank=True, null=True) 
 
     def __str__(self):
         return f"Application by {self.candidate.username} for {self.job.title}"
